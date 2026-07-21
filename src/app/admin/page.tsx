@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-
+export const dynamic = "force-dynamic";
 async function getCounts() {
   const [classes, subjects, terms, teachers, students, results] =
     await Promise.all([
