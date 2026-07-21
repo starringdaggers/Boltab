@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { verifyPassword, signSession, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyPassword } from "@/lib/hash";
+import { signSession, SESSION_COOKIE_NAME } from "@/lib/jwt";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const token = signSession({
+  const token = await signSession({
     userId: user.id,
     role: user.role,
     name: user.name,
