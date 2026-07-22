@@ -30,6 +30,18 @@ export default function TeacherLayout({
           >
             Enter Results
           </Link>
+          <Link
+            href="/teacher/report-card"
+            className="block px-3 py-2 rounded-lg text-taupe hover:bg-vandyke hover:text-antique transition-colors text-sm"
+          >
+            Report Card Details
+          </Link>
+          <Link
+            href="/teacher/account"
+            className="block px-3 py-2 rounded-lg text-taupe hover:bg-vandyke hover:text-antique transition-colors text-sm"
+          >
+            Account
+          </Link>
         </nav>
         <div className="px-3 py-4 border-t border-taupe/20">
           <LogoutButton />

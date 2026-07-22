@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
+import { PSYCHOMOTOR_SKILLS, AFFECTIVE_TRAITS } from "@/lib/reportCardFields";
 
 export async function GET(req: NextRequest) {
   const session = await requireRole("STUDENT");
@@ -11,7 +12,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "termId is required." }, { status: 400 });
   }
 
-  const student = await db.student.findUnique({ where: { userId: session.userId } });
+  const student = await db.student.findUnique({
+    where: { userId: session.userId },
+    include: { user: { select: { name: true } }, class: true },
+  });
   if (!student) {
     return NextResponse.json({ error: "Student profile not found." }, { status: 404 });
   }
@@ -21,16 +25,31 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Term not found." }, { status: 404 });
   }
 
-  const results = await db.result.findMany({
-    where: { studentId: student.id, termId },
-    include: { subject: true },
-    orderBy: { subject: { name: "asc" } },
-  });
+  const [results, reportCard, numberOnRoll] = await Promise.all([
+    db.result.findMany({
+      where: { studentId: student.id, termId },
+      include: { subject: true },
+      orderBy: { subject: { name: "asc" } },
+    }),
+    db.reportCard.findUnique({ where: { studentId_termId: { studentId: student.id, termId } } }),
+    db.student.count({ where: { classId: student.classId } }),
+  ]);
 
   const totalScore = results.reduce((sum, r) => sum + r.totalScore, 0);
   const totalObtainable = results.reduce((sum, r) => sum + r.totalObtainable, 0);
-  const average = results.length > 0 ? totalScore / results.length : null;
   const aggregatePercent = totalObtainable > 0 ? (totalScore / totalObtainable) * 100 : null;
 
-  return NextResponse.json({ term, results, average, aggregatePercent });
+  return NextResponse.json({
+    student: {
+      name: student.user.name,
+      admissionNo: student.admissionNo,
+      className: student.class.name,
+    },
+    term,
+    numberOnRoll,
+    results,
+    reportCard,
+    aggregatePercent,
+    fields: { psychomotor: PSYCHOMOTOR_SKILLS, affective: AFFECTIVE_TRAITS },
+  });
 }

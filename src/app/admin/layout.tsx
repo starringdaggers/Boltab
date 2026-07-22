@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { href: "/admin/terms", label: "Terms" },
   { href: "/admin/teachers", label: "Teachers" },
   { href: "/admin/students", label: "Students" },
+  { href: "/admin/account", label: "Account" },
 ];
 
 export default function AdminLayout({

@@ -41,7 +41,8 @@ model Student {
   guardianName  String?
   guardianPhone String?
 
-  results Result[]
+  results     Result[]
+  reportCards ReportCard[]
 
   @@map("students")
 }
@@ -54,6 +55,7 @@ model Teacher {
   // Subjects/classes this teacher is permitted to enter results for
   assignments TeacherAssignment[]
   resultsUploaded Result[]
+  reportCardsUpdated ReportCard[]
 
   @@map("teachers")
 }
@@ -98,7 +100,8 @@ model Term {
   academicYear String  // e.g. "2026/2027"
   isLocked    Boolean  @default(false) // admin can lock a term to stop further edits
 
-  results Result[]
+  results     Result[]
+  reportCards ReportCard[]
 
   @@unique([name, academicYear])
   @@map("terms")
@@ -115,11 +118,18 @@ model Result {
   termId     String
   term       Term     @relation(fields: [termId], references: [id])
 
-  testScore  Float    // e.g. out of 40
-  examScore  Float    // e.g. out of 60
-  totalScore Float    // computed at write time: testScore + examScore
-  grade      String   // e.g. "A", "B", computed at write time
-  remark     String?
+  // Continuous-assessment breakdown, mirroring the school's paper report card
+  firstHalfScore       Float  @default(0)
+  firstHalfObtainable  Float  @default(20)
+  secondHalfScore      Float  @default(0)
+  secondHalfObtainable Float  @default(20)
+  examScore            Float  @default(0)
+  examObtainable       Float  @default(60)
+
+  totalScore      Float    // computed at write time: sum of the three scores above
+  totalObtainable Float    @default(100)
+  grade           String   // word rating computed from percentage, e.g. "Excellent", "Good"
+  remark          String?  // optional teacher override/comment for this subject
 
   uploadedById String
   uploadedBy   Teacher @relation(fields: [uploadedById], references: [id])
@@ -128,4 +138,39 @@ model Result {
 
   @@unique([studentId, subjectId, termId]) // one result per student/subject/term
   @@map("results")
+}
+
+// One record per student per term — the non-subject parts of the paper
+// report card: attendance, psychomotor/affective ratings, and comments.
+model ReportCard {
+  id        String  @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  termId    String
+  term      Term    @relation(fields: [termId], references: [id])
+
+  // 1. Attendance
+  timesSchoolOpened Int?
+  timesPresent      Int?
+  timesAbsent       Int?
+  nextTermBegins    String?
+
+  // 3 & 4. Psychomotor skills / affective areas — each stored as
+  // { "Verbal Fluency": 5, "Games": 4, ... } with ratings 1-5
+  psychomotor Json?
+  affective   Json?
+
+  generalPerformance  String?
+  classTeacherName    String?
+  classTeacherComment String?
+  headmasterComment   String?
+  dateIssued          String?
+
+  updatedById String
+  updatedBy   Teacher  @relation(fields: [updatedById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([studentId, termId])
+  @@map("report_cards")
 }

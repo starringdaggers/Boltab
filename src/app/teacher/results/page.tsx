@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Option = { id: string; name: string };
 type Assignment = {
@@ -14,22 +14,32 @@ type RosterEntry = {
   name: string;
   admissionNo: string;
   existingResult: {
-    testScore: number;
+    firstHalfScore: number;
+    firstHalfObtainable: number;
+    secondHalfScore: number;
+    secondHalfObtainable: number;
     examScore: number;
+    examObtainable: number;
     remark: string | null;
   } | null;
 };
+type ScoreState = {
+  firstHalfScore: string;
+  firstHalfObtainable: string;
+  secondHalfScore: string;
+  secondHalfObtainable: string;
+  examScore: string;
+  examObtainable: string;
+  remark: string;
+};
 
-const MAX_TEST = 40;
-const MAX_EXAM = 60;
-
-function computeGradeClient(total: number): string {
-  if (total >= 70) return "A";
-  if (total >= 60) return "B";
-  if (total >= 50) return "C";
-  if (total >= 45) return "D";
-  if (total >= 40) return "E";
-  return "F";
+function computeGradeClient(total: number, obtainable: number): string {
+  const pct = obtainable > 0 ? (total / obtainable) * 100 : 0;
+  if (pct >= 75) return "Excellent";
+  if (pct >= 60) return "V.Good";
+  if (pct >= 50) return "Good";
+  if (pct >= 40) return "Fair";
+  return "Poor";
 }
 
 export default function TeacherResultsPage() {
@@ -44,9 +54,12 @@ export default function TeacherResultsPage() {
 
   const [roster, setRoster] = useState<RosterEntry[]>([]);
   const [isLocked, setIsLocked] = useState(false);
-  const [scores, setScores] = useState<
-    Record<string, { testScore: string; examScore: string; remark: string }>
-  >({});
+  const [defaults, setDefaults] = useState({
+    firstHalfObtainable: 20,
+    secondHalfObtainable: 20,
+    examObtainable: 60,
+  });
+  const [scores, setScores] = useState<Record<string, ScoreState>>({});
 
   const [loadingOptions, setLoadingOptions] = useState(true);
   const [loadingRoster, setLoadingRoster] = useState(false);
@@ -96,13 +109,19 @@ export default function TeacherResultsPage() {
       }
       setRoster(data.roster);
       setIsLocked(data.isLocked);
+      setDefaults(data.defaults);
 
       const initialScores: typeof scores = {};
       for (const entry of data.roster as RosterEntry[]) {
+        const r = entry.existingResult;
         initialScores[entry.studentId] = {
-          testScore: entry.existingResult ? String(entry.existingResult.testScore) : "",
-          examScore: entry.existingResult ? String(entry.existingResult.examScore) : "",
-          remark: entry.existingResult?.remark || "",
+          firstHalfScore: r ? String(r.firstHalfScore) : "",
+          firstHalfObtainable: String(r ? r.firstHalfObtainable : data.defaults.firstHalfObtainable),
+          secondHalfScore: r ? String(r.secondHalfScore) : "",
+          secondHalfObtainable: String(r ? r.secondHalfObtainable : data.defaults.secondHalfObtainable),
+          examScore: r ? String(r.examScore) : "",
+          examObtainable: String(r ? r.examObtainable : data.defaults.examObtainable),
+          remark: r?.remark || "",
         };
       }
       setScores(initialScores);
@@ -112,7 +131,7 @@ export default function TeacherResultsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClassId, selectedSubjectId, selectedTermId]);
 
-  function updateScore(studentId: string, field: "testScore" | "examScore" | "remark", value: string) {
+  function updateScore(studentId: string, field: keyof ScoreState, value: string) {
     setScores((prev) => ({
       ...prev,
       [studentId]: { ...prev[studentId], [field]: value },
@@ -131,11 +150,16 @@ export default function TeacherResultsPage() {
     const entries = roster
       .map((r) => {
         const s = scores[r.studentId];
-        if (!s || s.testScore === "" || s.examScore === "") return null;
+        if (!s || s.firstHalfScore === "" || s.secondHalfScore === "" || s.examScore === "")
+          return null;
         return {
           studentId: r.studentId,
-          testScore: Number(s.testScore),
+          firstHalfScore: Number(s.firstHalfScore),
+          firstHalfObtainable: Number(s.firstHalfObtainable) || defaults.firstHalfObtainable,
+          secondHalfScore: Number(s.secondHalfScore),
+          secondHalfObtainable: Number(s.secondHalfObtainable) || defaults.secondHalfObtainable,
           examScore: Number(s.examScore),
+          examObtainable: Number(s.examObtainable) || defaults.examObtainable,
           remark: s.remark || undefined,
         };
       })
@@ -173,8 +197,9 @@ export default function TeacherResultsPage() {
         Enter Results
       </h1>
       <p className="text-vandyke mb-6">
-        Pick a class, subject, and term, then enter scores for the whole
-        class at once.
+        Pick a class, subject, and term, then enter 1st Half, 2nd Half, and
+        Examination scores for the whole class at once — just like the
+        continuous assessment sheet.
       </p>
 
       {assignments.length > 0 && (
@@ -268,55 +293,114 @@ export default function TeacherResultsPage() {
                 <tr className="text-left text-vandyke border-b border-taupe/30">
                   <th className="py-2 font-medium">Student</th>
                   <th className="py-2 font-medium">Admission No.</th>
-                  <th className="py-2 font-medium w-24">
-                    Test (/{MAX_TEST})
-                  </th>
-                  <th className="py-2 font-medium w-24">
-                    Exam (/{MAX_EXAM})
-                  </th>
+                  <th className="py-2 font-medium w-28">1st Half</th>
+                  <th className="py-2 font-medium w-28">2nd Half</th>
+                  <th className="py-2 font-medium w-28">Examination</th>
                   <th className="py-2 font-medium w-20">Total</th>
-                  <th className="py-2 font-medium w-16">Grade</th>
+                  <th className="py-2 font-medium w-20">Rating</th>
                   <th className="py-2 font-medium">Remark</th>
                 </tr>
               </thead>
               <tbody>
                 {roster.map((r) => {
-                  const s = scores[r.studentId] || { testScore: "", examScore: "", remark: "" };
-                  const test = Number(s.testScore) || 0;
+                  const s = scores[r.studentId] || {
+                    firstHalfScore: "",
+                    firstHalfObtainable: String(defaults.firstHalfObtainable),
+                    secondHalfScore: "",
+                    secondHalfObtainable: String(defaults.secondHalfObtainable),
+                    examScore: "",
+                    examObtainable: String(defaults.examObtainable),
+                    remark: "",
+                  };
+                  const first = Number(s.firstHalfScore) || 0;
+                  const second = Number(s.secondHalfScore) || 0;
                   const exam = Number(s.examScore) || 0;
-                  const hasScores = s.testScore !== "" && s.examScore !== "";
-                  const total = test + exam;
+                  const firstObt = Number(s.firstHalfObtainable) || defaults.firstHalfObtainable;
+                  const secondObt = Number(s.secondHalfObtainable) || defaults.secondHalfObtainable;
+                  const examObt = Number(s.examObtainable) || defaults.examObtainable;
+                  const hasScores =
+                    s.firstHalfScore !== "" && s.secondHalfScore !== "" && s.examScore !== "";
+                  const total = first + second + exam;
+                  const totalObt = firstObt + secondObt + examObt;
                   return (
-                    <tr key={r.studentId} className="border-b border-taupe/10">
+                    <tr key={r.studentId} className="border-b border-taupe/10 align-top">
                       <td className="py-2 text-bistre">{r.name}</td>
                       <td className="py-2 font-mono text-vandyke">{r.admissionNo}</td>
                       <td className="py-2">
-                        <input
-                          type="number"
-                          min={0}
-                          max={MAX_TEST}
-                          disabled={isLocked}
-                          value={s.testScore}
-                          onChange={(e) => updateScore(r.studentId, "testScore", e.target.value)}
-                          className="w-16 border border-taupe/50 rounded px-2 py-1 bg-white/60 disabled:opacity-50"
-                        />
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            min={0}
+                            max={firstObt}
+                            disabled={isLocked}
+                            value={s.firstHalfScore}
+                            onChange={(e) => updateScore(r.studentId, "firstHalfScore", e.target.value)}
+                            className="w-14 border border-taupe/50 rounded px-2 py-1 bg-white/60 disabled:opacity-50"
+                          />
+                          <span className="text-xs text-vandyke">/</span>
+                          <input
+                            type="number"
+                            min={1}
+                            disabled={isLocked}
+                            value={s.firstHalfObtainable}
+                            onChange={(e) =>
+                              updateScore(r.studentId, "firstHalfObtainable", e.target.value)
+                            }
+                            className="w-12 border border-taupe/50 rounded px-1.5 py-1 bg-white/40 text-xs disabled:opacity-50"
+                          />
+                        </div>
                       </td>
                       <td className="py-2">
-                        <input
-                          type="number"
-                          min={0}
-                          max={MAX_EXAM}
-                          disabled={isLocked}
-                          value={s.examScore}
-                          onChange={(e) => updateScore(r.studentId, "examScore", e.target.value)}
-                          className="w-16 border border-taupe/50 rounded px-2 py-1 bg-white/60 disabled:opacity-50"
-                        />
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            min={0}
+                            max={secondObt}
+                            disabled={isLocked}
+                            value={s.secondHalfScore}
+                            onChange={(e) => updateScore(r.studentId, "secondHalfScore", e.target.value)}
+                            className="w-14 border border-taupe/50 rounded px-2 py-1 bg-white/60 disabled:opacity-50"
+                          />
+                          <span className="text-xs text-vandyke">/</span>
+                          <input
+                            type="number"
+                            min={1}
+                            disabled={isLocked}
+                            value={s.secondHalfObtainable}
+                            onChange={(e) =>
+                              updateScore(r.studentId, "secondHalfObtainable", e.target.value)
+                            }
+                            className="w-12 border border-taupe/50 rounded px-1.5 py-1 bg-white/40 text-xs disabled:opacity-50"
+                          />
+                        </div>
+                      </td>
+                      <td className="py-2">
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            min={0}
+                            max={examObt}
+                            disabled={isLocked}
+                            value={s.examScore}
+                            onChange={(e) => updateScore(r.studentId, "examScore", e.target.value)}
+                            className="w-14 border border-taupe/50 rounded px-2 py-1 bg-white/60 disabled:opacity-50"
+                          />
+                          <span className="text-xs text-vandyke">/</span>
+                          <input
+                            type="number"
+                            min={1}
+                            disabled={isLocked}
+                            value={s.examObtainable}
+                            onChange={(e) => updateScore(r.studentId, "examObtainable", e.target.value)}
+                            className="w-12 border border-taupe/50 rounded px-1.5 py-1 bg-white/40 text-xs disabled:opacity-50"
+                          />
+                        </div>
                       </td>
                       <td className="py-2 font-mono text-vandyke">
-                        {hasScores ? total : "—"}
+                        {hasScores ? `${total}/${totalObt}` : "—"}
                       </td>
                       <td className="py-2 font-mono text-vandyke">
-                        {hasScores ? computeGradeClient(total) : "—"}
+                        {hasScores ? computeGradeClient(total, totalObt) : "—"}
                       </td>
                       <td className="py-2">
                         <input

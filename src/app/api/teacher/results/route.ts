@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
-import { computeGrade, MAX_TEST_SCORE, MAX_EXAM_SCORE } from "@/lib/grading";
+import {
+  computeGrade,
+  DEFAULT_FIRST_HALF_OBTAINABLE,
+  DEFAULT_SECOND_HALF_OBTAINABLE,
+  DEFAULT_EXAM_OBTAINABLE,
+} from "@/lib/grading";
 
 async function getOwnTeacher(userId: string) {
   return db.teacher.findUnique({ where: { userId } });
@@ -42,8 +47,12 @@ export async function GET(req: NextRequest) {
 
   const existingResults: {
     studentId: string;
-    testScore: number;
+    firstHalfScore: number;
+    firstHalfObtainable: number;
+    secondHalfScore: number;
+    secondHalfObtainable: number;
     examScore: number;
+    examObtainable: number;
     remark: string | null;
   }[] = await db.result.findMany({
     where: { classId, subjectId, termId },
@@ -59,13 +68,26 @@ export async function GET(req: NextRequest) {
     existingResult: resultByStudentId.get(s.id) || null,
   }));
 
-  return NextResponse.json({ roster, term, isLocked: term.isLocked });
+  return NextResponse.json({
+    roster,
+    term,
+    isLocked: term.isLocked,
+    defaults: {
+      firstHalfObtainable: DEFAULT_FIRST_HALF_OBTAINABLE,
+      secondHalfObtainable: DEFAULT_SECOND_HALF_OBTAINABLE,
+      examObtainable: DEFAULT_EXAM_OBTAINABLE,
+    },
+  });
 }
 
 const scoreEntrySchema = z.object({
   studentId: z.string().min(1),
-  testScore: z.number().min(0).max(MAX_TEST_SCORE),
-  examScore: z.number().min(0).max(MAX_EXAM_SCORE),
+  firstHalfScore: z.number().min(0),
+  firstHalfObtainable: z.number().min(1),
+  secondHalfScore: z.number().min(0),
+  secondHalfObtainable: z.number().min(1),
+  examScore: z.number().min(0),
+  examObtainable: z.number().min(1),
   remark: z.string().max(200).optional(),
 });
 
@@ -88,6 +110,20 @@ export async function POST(req: NextRequest) {
     );
   }
   const { classId, subjectId, termId, entries } = parsed.data;
+
+  // Each entry's scores must not exceed what's obtainable for that column
+  const outOfRange = entries.find(
+    (e) =>
+      e.firstHalfScore > e.firstHalfObtainable ||
+      e.secondHalfScore > e.secondHalfObtainable ||
+      e.examScore > e.examObtainable
+  );
+  if (outOfRange) {
+    return NextResponse.json(
+      { error: "One or more scores exceed the marks obtainable for that column." },
+      { status: 400 }
+    );
+  }
 
   const teacher = await getOwnTeacher(session.userId);
   if (!teacher) {
@@ -125,8 +161,24 @@ export async function POST(req: NextRequest) {
 
   const saved = [];
   for (const entry of entries) {
-    const totalScore = entry.testScore + entry.examScore;
-    const { grade } = computeGrade(totalScore);
+    const totalScore = entry.firstHalfScore + entry.secondHalfScore + entry.examScore;
+    const totalObtainable =
+      entry.firstHalfObtainable + entry.secondHalfObtainable + entry.examObtainable;
+    const { grade } = computeGrade(totalScore, totalObtainable);
+
+    const data = {
+      firstHalfScore: entry.firstHalfScore,
+      firstHalfObtainable: entry.firstHalfObtainable,
+      secondHalfScore: entry.secondHalfScore,
+      secondHalfObtainable: entry.secondHalfObtainable,
+      examScore: entry.examScore,
+      examObtainable: entry.examObtainable,
+      totalScore,
+      totalObtainable,
+      grade,
+      remark: entry.remark,
+      uploadedById: teacher.id,
+    };
 
     const result = await db.result.upsert({
       where: {
@@ -136,25 +188,13 @@ export async function POST(req: NextRequest) {
           termId,
         },
       },
-      update: {
-        testScore: entry.testScore,
-        examScore: entry.examScore,
-        totalScore,
-        grade,
-        remark: entry.remark,
-        uploadedById: teacher.id,
-      },
+      update: data,
       create: {
         studentId: entry.studentId,
         classId,
         subjectId,
         termId,
-        testScore: entry.testScore,
-        examScore: entry.examScore,
-        totalScore,
-        grade,
-        remark: entry.remark,
-        uploadedById: teacher.id,
+        ...data,
       },
     });
     saved.push(result);

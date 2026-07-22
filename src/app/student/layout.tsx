@@ -8,7 +8,7 @@ export default function StudentLayout({
 }) {
   return (
     <div className="min-h-screen flex bg-antique">
-      <aside className="w-60 shrink-0 bg-bistre flex flex-col">
+      <aside className="w-60 shrink-0 bg-bistre flex flex-col print:hidden">
         <div className="px-6 py-6 border-b border-taupe/20">
           <p className="font-mono text-[10px] tracking-[0.2em] text-taupe uppercase">
             Boltab Brilliant Schools
@@ -30,12 +30,24 @@ export default function StudentLayout({
           >
             My Results
           </Link>
+          <Link
+            href="/student/report-card"
+            className="block px-3 py-2 rounded-lg text-taupe hover:bg-vandyke hover:text-antique transition-colors text-sm"
+          >
+            Report Card
+          </Link>
+          <Link
+            href="/student/account"
+            className="block px-3 py-2 rounded-lg text-taupe hover:bg-vandyke hover:text-antique transition-colors text-sm"
+          >
+            Account
+          </Link>
         </nav>
         <div className="px-3 py-4 border-t border-taupe/20">
           <LogoutButton />
         </div>
       </aside>
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto print:overflow-visible">{children}</main>
     </div>
   );
 }
