@@ -202,6 +202,41 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Leadership */}
+      <section className="max-w-6xl mx-auto px-6 md:px-10 py-16 grid md:grid-cols-2 gap-12 items-center">
+        <div className="order-2 md:order-1">
+          <p className="font-mono text-xs tracking-[0.2em] text-choc uppercase mb-4">
+            Leadership
+          </p>
+          <h2 className="font-display text-2xl md:text-3xl font-semibold mb-2">
+            Oloyede Adetella Lateefat
+          </h2>
+          <p className="text-choc font-medium mb-5">
+            Headmistress, Boltab Brilliant Schools
+          </p>
+          <p className="text-vandyke mb-6 max-w-md">
+            "Every child's progress deserves to be seen clearly and shared
+            quickly. This portal is part of how we keep that promise to our
+            students and their families."
+          </p>
+          <a
+            href="https://wa.me/2349036750884"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-choc hover:bg-choc-dark text-antique font-medium rounded-lg px-5 py-2.5 transition-colors"
+          >
+            Chat on WhatsApp
+          </a>
+        </div>
+        <div className="order-1 md:order-2 flex justify-center">
+          <img
+            src="/headmistress.png"
+            alt="Oloyede Adetella Lateefat, Headmistress of Boltab Brilliant Schools"
+            className="w-64 md:w-72 h-auto rounded-card"
+          />
+        </div>
+      </section>
+
       {/* CTA banner */}
       <section className="bg-bistre">
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 text-center">
@@ -224,7 +259,17 @@ export default function LandingPage() {
             Boltab Brilliant Schools
           </p>
           <p className="text-vandyke text-sm mt-1">
-            Trouble accessing your account? Contact the school office.
+            Trouble accessing your account? Contact the school office, or
+            reach us on WhatsApp at{" "}
+            <a
+              href="https://wa.me/2349036750884"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-choc hover:underline"
+            >
+              0903 675 0884
+            </a>
+            .
           </p>
         </div>
         <p className="text-vandyke text-sm">
