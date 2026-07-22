@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { PSYCHOMOTOR_SKILLS, AFFECTIVE_TRAITS } from "@/lib/reportCardFields";
@@ -117,10 +118,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Student not found." }, { status: 404 });
   }
 
+  // Prisma's Json? columns need the explicit JsonNull sentinel to store a
+  // real null — a plain `null` is ambiguous with "field not set" here.
+  const data = {
+    ...fields,
+    psychomotor: fields.psychomotor === null || fields.psychomotor === undefined
+      ? Prisma.JsonNull
+      : fields.psychomotor,
+    affective: fields.affective === null || fields.affective === undefined
+      ? Prisma.JsonNull
+      : fields.affective,
+    updatedById: teacher.id,
+  };
+
   const reportCard = await db.reportCard.upsert({
     where: { studentId_termId: { studentId, termId } },
-    update: { ...fields, updatedById: teacher.id },
-    create: { studentId, termId, ...fields, updatedById: teacher.id },
+    update: data,
+    create: { studentId, termId, ...data },
   });
 
   return NextResponse.json({ reportCard });
