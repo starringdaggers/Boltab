@@ -1,4 +1,4 @@
- # Boltab Brilliant Schools — Results Portal
+# Boltab Brilliant Schools — Results Portal
 
 Phase 1: project foundation, database schema, and authentication.
 
