@@ -1,7 +1,14 @@
 import type { Config } from "tailwindcss";
 
 // Boltab Brilliant Schools — design token system
-// Palette source: Bistre / Antique White / Pale Taupe / Milk Chocolate / Van Dyke Brown
+// Palette source: "Starla" blues (#021024 → #C1E8FF), applied by Claude.
+// Token names (bistre/antique/taupe/choc/vandyke) are historical from the
+// original brown palette — they're kept as-is here so no component code
+// needs to change, they just now resolve to the blue values below, in the
+// same light-to-dark structural roles as before:
+//   antique = lightest (backgrounds)   → taupe = muted/borders
+//   choc    = accent/CTA               → vandyke = secondary dark
+//   bistre  = darkest (primary/nav)
 // Two functional accents (outside the core palette) are added ONLY for result status states.
 const config: Config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
@@ -9,24 +16,24 @@ const config: Config = {
     extend: {
       colors: {
         bistre: {
-          DEFAULT: "#372414",
-          light: "#4A3320",
+          DEFAULT: "#021024",
+          light: "#0A2340",
         },
         antique: {
-          DEFAULT: "#F7EBDF",
-          dim: "#EFDFCE",
+          DEFAULT: "#C1E8FF",
+          dim: "#A9D9F5",
         },
         taupe: {
-          DEFAULT: "#B7A087",
-          dark: "#9C876C",
+          DEFAULT: "#7DA0CA",
+          dark: "#6890BC",
         },
         choc: {
-          DEFAULT: "#825A3C",
-          dark: "#6E4B32",
+          DEFAULT: "#5483B3",
+          dark: "#3F6690",
         },
         vandyke: {
-          DEFAULT: "#674831",
-          light: "#7A5A40",
+          DEFAULT: "#052659",
+          light: "#0C3670",
         },
         // Functional accents — used ONLY for grade/result states, never as brand color
         status: {

@@ -141,7 +141,7 @@ export default function LoginPage() {
           className="absolute inset-0 opacity-[0.08]"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(to bottom, transparent, transparent 47px, #F7EBDF 48px)",
+              "repeating-linear-gradient(to bottom, transparent, transparent 47px, #C1E8FF 48px)",
           }}
         />
 
@@ -157,16 +157,16 @@ export default function LoginPage() {
               cy="80"
               r="76"
               fill="none"
-              stroke="#F7EBDF"
+              stroke="#C1E8FF"
               strokeWidth="2"
               strokeDasharray="4 6"
             />
-            <circle cx="80" cy="80" r="60" fill="#F7EBDF" opacity="0.08" />
+            <circle cx="80" cy="80" r="60" fill="#C1E8FF" opacity="0.08" />
             <text
               x="80"
               y="72"
               textAnchor="middle"
-              fill="#F7EBDF"
+              fill="#C1E8FF"
               fontFamily="var(--font-fraunces)"
               fontSize="34"
               fontWeight="600"
@@ -177,7 +177,7 @@ export default function LoginPage() {
               x="80"
               y="98"
               textAnchor="middle"
-              fill="#B7A087"
+              fill="#7DA0CA"
               fontFamily="var(--font-plexmono)"
               fontSize="9"
               letterSpacing="2"
