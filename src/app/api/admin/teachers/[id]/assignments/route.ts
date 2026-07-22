@@ -20,6 +20,36 @@ export async function POST(
     return NextResponse.json({ error: "Select a class and subject." }, { status: 400 });
   }
 
+  // Bulk mode: assign every subject that exists for this class in one go
+  if (parsed.data.subjectId === "ALL") {
+    const allSubjects: { id: string }[] = await db.subject.findMany({
+      select: { id: true },
+    });
+    const alreadyAssigned: { subjectId: string }[] = await db.teacherAssignment.findMany({
+      where: { teacherId: params.id, classId: parsed.data.classId },
+      select: { subjectId: true },
+    });
+    const assignedSet = new Set(alreadyAssigned.map((a) => a.subjectId));
+    const toCreate = allSubjects.filter((s) => !assignedSet.has(s.id));
+
+    if (toCreate.length === 0) {
+      return NextResponse.json(
+        { error: "Already assigned to every subject for this class." },
+        { status: 409 }
+      );
+    }
+
+    await db.teacherAssignment.createMany({
+      data: toCreate.map((s) => ({
+        teacherId: params.id,
+        classId: parsed.data.classId,
+        subjectId: s.id,
+      })),
+    });
+
+    return NextResponse.json({ created: toCreate.length }, { status: 201 });
+  }
+
   const existing = await db.teacherAssignment.findUnique({
     where: {
       teacherId_classId_subjectId: {

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+type Option = { id: string; name: string };
 type Assignment = {
   id: string;
   class: { id: string; name: string };
@@ -32,9 +33,13 @@ function computeGradeClient(total: number): string {
 }
 
 export default function TeacherResultsPage() {
+  const [classes, setClasses] = useState<Option[]>([]);
+  const [subjects, setSubjects] = useState<Option[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [terms, setTerms] = useState<Term[]>([]);
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState("");
+
+  const [selectedClassId, setSelectedClassId] = useState("");
+  const [selectedSubjectId, setSelectedSubjectId] = useState("");
   const [selectedTermId, setSelectedTermId] = useState("");
 
   const [roster, setRoster] = useState<RosterEntry[]>([]);
@@ -53,35 +58,32 @@ export default function TeacherResultsPage() {
   useEffect(() => {
     async function loadOptions() {
       setLoadingOptions(true);
-      const [assignmentsRes, termsRes] = await Promise.all([
+      const [classesRes, subjectsRes, assignmentsRes, termsRes] = await Promise.all([
+        fetch("/api/teacher/classes"),
+        fetch("/api/teacher/subjects"),
         fetch("/api/teacher/assignments"),
         fetch("/api/teacher/terms"),
       ]);
-      const assignmentsData = await assignmentsRes.json();
-      const termsData = await termsRes.json();
-      setAssignments(assignmentsData.assignments || []);
-      setTerms(termsData.terms || []);
+      setClasses((await classesRes.json()).classes || []);
+      setSubjects((await subjectsRes.json()).subjects || []);
+      setAssignments((await assignmentsRes.json()).assignments || []);
+      setTerms((await termsRes.json()).terms || []);
       setLoadingOptions(false);
     }
     loadOptions();
   }, []);
 
-  const selectedAssignment = useMemo(
-    () => assignments.find((a) => a.id === selectedAssignmentId) || null,
-    [assignments, selectedAssignmentId]
-  );
-
   useEffect(() => {
     async function loadRoster() {
-      if (!selectedAssignment || !selectedTermId) {
+      if (!selectedClassId || !selectedSubjectId || !selectedTermId) {
         setRoster([]);
         return;
       }
       setLoadingRoster(true);
       setMessage(null);
       const params = new URLSearchParams({
-        classId: selectedAssignment.class.id,
-        subjectId: selectedAssignment.subject.id,
+        classId: selectedClassId,
+        subjectId: selectedSubjectId,
         termId: selectedTermId,
       });
       const res = await fetch(`/api/teacher/results?${params}`);
@@ -108,7 +110,7 @@ export default function TeacherResultsPage() {
     }
     loadRoster();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAssignmentId, selectedTermId]);
+  }, [selectedClassId, selectedSubjectId, selectedTermId]);
 
   function updateScore(studentId: string, field: "testScore" | "examScore" | "remark", value: string) {
     setScores((prev) => ({
@@ -117,8 +119,13 @@ export default function TeacherResultsPage() {
     }));
   }
 
+  function applyShortcut(a: Assignment) {
+    setSelectedClassId(a.class.id);
+    setSelectedSubjectId(a.subject.id);
+  }
+
   async function handleSubmit() {
-    if (!selectedAssignment || !selectedTermId) return;
+    if (!selectedClassId || !selectedSubjectId || !selectedTermId) return;
     setMessage(null);
 
     const entries = roster
@@ -144,8 +151,8 @@ export default function TeacherResultsPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        classId: selectedAssignment.class.id,
-        subjectId: selectedAssignment.subject.id,
+        classId: selectedClassId,
+        subjectId: selectedSubjectId,
         termId: selectedTermId,
         entries,
       }),
@@ -165,31 +172,62 @@ export default function TeacherResultsPage() {
       <h1 className="font-display text-3xl text-bistre font-semibold mb-1">
         Enter Results
       </h1>
-      <p className="text-vandyke mb-8">
-        Pick a class/subject and a term, then enter scores for the whole
+      <p className="text-vandyke mb-6">
+        Pick a class, subject, and term, then enter scores for the whole
         class at once.
       </p>
+
+      {assignments.length > 0 && (
+        <div className="mb-6">
+          <p className="text-xs text-vandyke uppercase tracking-wide font-mono mb-2">
+            Quick picks — your usual classes
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {assignments.map((a) => (
+              <button
+                key={a.id}
+                onClick={() => applyShortcut(a)}
+                className="text-xs bg-taupe/20 hover:bg-taupe/30 text-vandyke rounded-full px-3 py-1.5 transition-colors"
+              >
+                {a.class.name} · {a.subject.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loadingOptions ? (
         <p className="text-vandyke">Loading…</p>
       ) : (
-        <div className="flex gap-3 mb-6 max-w-2xl">
+        <div className="flex flex-wrap gap-3 mb-6 max-w-2xl">
           <select
-            value={selectedAssignmentId}
-            onChange={(e) => setSelectedAssignmentId(e.target.value)}
-            className="flex-1 border border-taupe/50 rounded-lg px-3 py-2 bg-white/60"
+            value={selectedClassId}
+            onChange={(e) => setSelectedClassId(e.target.value)}
+            className="flex-1 min-w-[160px] border border-taupe/50 rounded-lg px-3 py-2 bg-white/60"
           >
-            <option value="">Select class / subject…</option>
-            {assignments.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.class.name} · {a.subject.name}
+            <option value="">Select class…</option>
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedSubjectId}
+            onChange={(e) => setSelectedSubjectId(e.target.value)}
+            className="flex-1 min-w-[160px] border border-taupe/50 rounded-lg px-3 py-2 bg-white/60"
+          >
+            <option value="">Select subject…</option>
+            {subjects.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
               </option>
             ))}
           </select>
           <select
             value={selectedTermId}
             onChange={(e) => setSelectedTermId(e.target.value)}
-            className="flex-1 border border-taupe/50 rounded-lg px-3 py-2 bg-white/60"
+            className="flex-1 min-w-[160px] border border-taupe/50 rounded-lg px-3 py-2 bg-white/60"
           >
             <option value="">Select term…</option>
             {terms.map((t) => (
@@ -307,7 +345,7 @@ export default function TeacherResultsPage() {
             </button>
           )}
         </>
-      ) : selectedAssignmentId && selectedTermId ? (
+      ) : selectedClassId && selectedSubjectId && selectedTermId ? (
         <p className="text-vandyke">No students found in this class.</p>
       ) : null}
     </div>

@@ -229,11 +229,13 @@ export default function LandingPage() {
           </a>
         </div>
         <div className="order-1 md:order-2 flex justify-center">
-          <img
-            src="/headmistress.png"
-            alt="Oloyede Adetella Lateefat, Headmistress of Boltab Brilliant Schools"
-            className="w-64 md:w-72 h-auto rounded-card"
-          />
+          <div className="bg-white/40 border border-taupe/30 rounded-card p-6">
+            <img
+              src="/headmistress.png"
+              alt="Oloyede Adetella Lateefat, Headmistress of Boltab Brilliant Schools"
+              className="w-56 md:w-64 h-auto rounded-card"
+            />
+          </div>
         </div>
       </section>
 

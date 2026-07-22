@@ -26,13 +26,15 @@ export default async function TeacherOverview() {
         Welcome, {session?.name}
       </h1>
       <p className="text-vandyke mb-8">
-        Here's what you're assigned to teach this session.
+        Here are your quick-access shortcuts — you can enter results for
+        any class or subject, these are just the ones you use most.
       </p>
 
       {!teacher || teacher.assignments.length === 0 ? (
         <p className="text-vandyke">
-          You haven't been assigned to any class/subject yet — ask an admin
-          to set this up.
+          No quick-access shortcuts set up yet — that's fine, you can still
+          enter results for any class or subject from the Enter Results
+          page. Ask an admin to set up shortcuts here if you'd like them.
         </p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">

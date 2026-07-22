@@ -86,6 +86,9 @@ export default function TeachersPage() {
       alert(data.error);
       return;
     }
+    if (typeof data.created === "number") {
+      alert(`Assigned ${data.created} subject(s) for this class.`);
+    }
     setAssignForm((prev) => ({ ...prev, [teacherId]: { classId: "", subjectId: "" } }));
     load();
   }
@@ -210,6 +213,7 @@ export default function TeachersPage() {
                   className="border border-taupe/50 rounded-lg px-2 py-1.5 bg-white/60 text-sm"
                 >
                   <option value="">Subject…</option>
+                  <option value="ALL">— All subjects for this class —</option>
                   {subjects.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
