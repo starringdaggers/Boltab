@@ -5,7 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/admin/LogoutButton";
 
-export type NavItem = { href: string; label: string };
+export type NavItem = {
+  href: string;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+};
 
 export default function DashboardShell({
   roleLabel,
@@ -29,21 +33,23 @@ export default function DashboardShell({
           {roleLabel}
         </p>
       </div>
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           const active = pathname === item.href;
+          const Icon = item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className={`block px-3 py-2.5 rounded-lg text-sm transition-colors ${
+              className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                 active
-                  ? "bg-vandyke text-antique"
-                  : "text-taupe hover:bg-vandyke hover:text-antique"
+                  ? "bg-antique text-bistre border-antique shadow-sm"
+                  : "text-taupe border-taupe/25 hover:border-taupe/50 hover:bg-white/5"
               }`}
             >
-              {item.label}
+              {Icon && <Icon className="w-4 h-4 shrink-0" />}
+              <span>{item.label}</span>
             </Link>
           );
         })}

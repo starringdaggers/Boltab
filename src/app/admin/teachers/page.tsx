@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import Avatar from "@/components/shared/Avatar";
+import Pagination from "@/components/shared/Pagination";
 
 type Assignment = {
   id: string;
@@ -32,6 +35,10 @@ export default function TeachersPage() {
   const [assignForm, setAssignForm] = useState<
     Record<string, { classId: string; subjectId: string }>
   >({});
+
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 8;
 
   async function load() {
     setLoading(true);
@@ -102,6 +109,28 @@ export default function TeachersPage() {
     load();
   }
 
+  const filteredTeachers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return teachers;
+    return teachers.filter(
+      (t) =>
+        t.user.name.toLowerCase().includes(q) ||
+        t.user.email.toLowerCase().includes(q) ||
+        t.assignments.some(
+          (a) =>
+            a.class.name.toLowerCase().includes(q) ||
+            a.subject.name.toLowerCase().includes(q)
+        )
+    );
+  }, [teachers, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredTeachers.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageTeachers = filteredTeachers.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
   return (
     <div className="p-5 sm:p-8 lg:p-10 max-w-3xl">
       <h1 className="font-display text-3xl text-bistre font-semibold mb-1">
@@ -151,16 +180,36 @@ export default function TeachersPage() {
       ) : teachers.length === 0 ? (
         <p className="text-vandyke">No teachers yet — add your first one above.</p>
       ) : (
+        <>
+          <div className="relative max-w-xs mb-4">
+            <Search className="w-4 h-4 text-taupe absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Search by name, email, class, subject…"
+              className="w-full pl-9 pr-3 py-2 border border-taupe/50 rounded-lg bg-white/60 text-sm focus:border-choc outline-none"
+            />
+          </div>
+
+          {filteredTeachers.length === 0 ? (
+            <p className="text-vandyke text-sm">No teachers match "{search}".</p>
+          ) : (
         <ul className="space-y-4">
-          {teachers.map((t) => (
+          {pageTeachers.map((t) => (
             <li
               key={t.id}
               className="bg-white/40 border border-taupe/30 rounded-lg px-4 py-4"
             >
               <div className="flex items-center justify-between mb-3">
-                <div>
-                  <p className="text-bistre font-medium">{t.user.name}</p>
-                  <p className="text-vandyke text-sm">{t.user.email}</p>
+                <div className="flex items-center gap-3">
+                  <Avatar name={t.user.name} size={36} />
+                  <div>
+                    <p className="text-bistre font-medium">{t.user.name}</p>
+                    <p className="text-vandyke text-sm">{t.user.email}</p>
+                  </div>
                 </div>
               </div>
 
@@ -230,6 +279,9 @@ export default function TeachersPage() {
             </li>
           ))}
         </ul>
+          )}
+          <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+        </>
       )}
     </div>
   );

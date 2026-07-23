@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search } from "lucide-react";
+import Avatar from "@/components/shared/Avatar";
+import Pagination from "@/components/shared/Pagination";
 
 type StudentRow = {
   id: string;
@@ -33,6 +36,9 @@ export default function StudentsPage() {
     errors: { row: number; reason: string }[];
   } | null>(null);
   const [importing, setImporting] = useState(false);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   async function load() {
     setLoading(true);
@@ -232,28 +238,91 @@ export default function StudentsPage() {
       ) : students.length === 0 ? (
         <p className="text-vandyke">No students yet.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[560px]">
-            <thead>
-              <tr className="text-left text-vandyke border-b border-taupe/30">
-                <th className="py-2 font-medium">Name</th>
-                <th className="py-2 font-medium">Admission No.</th>
-                <th className="py-2 font-medium">Class</th>
-                <th className="py-2 font-medium">Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((s) => (
-                <tr key={s.id} className="border-b border-taupe/10">
-                  <td className="py-2 text-bistre">{s.user.name}</td>
-                  <td className="py-2 font-mono text-vandyke">{s.admissionNo}</td>
-                  <td className="py-2 text-vandyke">{s.class.name}</td>
-                  <td className="py-2 text-vandyke">{s.user.email}</td>
+        <StudentsRoster students={students} search={search} setSearch={setSearch} page={page} setPage={setPage} pageSize={PAGE_SIZE} />
+      )}
+    </div>
+  );
+}
+
+function StudentsRoster({
+  students,
+  search,
+  setSearch,
+  page,
+  setPage,
+  pageSize,
+}: {
+  students: StudentRow[];
+  search: string;
+  setSearch: (v: string) => void;
+  page: number;
+  setPage: (p: number) => void;
+  pageSize: number;
+}) {
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return students;
+    return students.filter(
+      (s) =>
+        s.user.name.toLowerCase().includes(q) ||
+        s.admissionNo.toLowerCase().includes(q) ||
+        s.class.name.toLowerCase().includes(q) ||
+        s.user.email.toLowerCase().includes(q)
+    );
+  }, [students, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageRows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  return (
+    <div>
+      <div className="relative max-w-xs mb-4">
+        <Search className="w-4 h-4 text-taupe absolute left-3 top-1/2 -translate-y-1/2" />
+        <input
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          placeholder="Search by name, admission no, class…"
+          className="w-full pl-9 pr-3 py-2 border border-taupe/50 rounded-lg bg-white/60 text-sm focus:border-choc outline-none"
+        />
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-vandyke text-sm">No students match "{search}".</p>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[560px]">
+              <thead>
+                <tr className="text-left text-vandyke border-b border-taupe/30">
+                  <th className="py-2 font-medium">Name</th>
+                  <th className="py-2 font-medium">Admission No.</th>
+                  <th className="py-2 font-medium">Class</th>
+                  <th className="py-2 font-medium">Email</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {pageRows.map((s) => (
+                  <tr key={s.id} className="border-b border-taupe/10">
+                    <td className="py-2 text-bistre">
+                      <div className="flex items-center gap-2.5">
+                        <Avatar name={s.user.name} size={28} />
+                        {s.user.name}
+                      </div>
+                    </td>
+                    <td className="py-2 font-mono text-vandyke">{s.admissionNo}</td>
+                    <td className="py-2 text-vandyke">{s.class.name}</td>
+                    <td className="py-2 text-vandyke">{s.user.email}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+        </>
       )}
     </div>
   );
