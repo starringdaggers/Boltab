@@ -99,6 +99,7 @@ model Term {
   name        String   // e.g. "First Term"
   academicYear String  // e.g. "2026/2027"
   isLocked    Boolean  @default(false) // admin can lock a term to stop further edits
+  resultsReleased Boolean @default(false) // admin controls whether students can see results/report cards for this term at all
 
   results     Result[]
   reportCards ReportCard[]
@@ -166,8 +167,12 @@ model ReportCard {
   headmasterComment   String?
   dateIssued          String?
 
-  updatedById String
-  updatedBy   Teacher  @relation(fields: [updatedById], references: [id])
+  // Admin-controlled: hides this specific student's report card/results even
+  // when the term overall has been released to students.
+  isWithheld Boolean @default(false)
+
+  updatedById String?
+  updatedBy   Teacher? @relation(fields: [updatedById], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

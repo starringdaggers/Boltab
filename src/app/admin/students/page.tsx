@@ -104,7 +104,7 @@ export default function StudentsPage() {
   }
 
   return (
-    <div className="p-10 max-w-3xl">
+    <div className="p-5 sm:p-8 lg:p-10 max-w-3xl">
       <h1 className="font-display text-3xl text-bistre font-semibold mb-1">
         Students
       </h1>
@@ -232,26 +232,28 @@ export default function StudentsPage() {
       ) : students.length === 0 ? (
         <p className="text-vandyke">No students yet.</p>
       ) : (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-vandyke border-b border-taupe/30">
-              <th className="py-2 font-medium">Name</th>
-              <th className="py-2 font-medium">Admission No.</th>
-              <th className="py-2 font-medium">Class</th>
-              <th className="py-2 font-medium">Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((s) => (
-              <tr key={s.id} className="border-b border-taupe/10">
-                <td className="py-2 text-bistre">{s.user.name}</td>
-                <td className="py-2 font-mono text-vandyke">{s.admissionNo}</td>
-                <td className="py-2 text-vandyke">{s.class.name}</td>
-                <td className="py-2 text-vandyke">{s.user.email}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[560px]">
+            <thead>
+              <tr className="text-left text-vandyke border-b border-taupe/30">
+                <th className="py-2 font-medium">Name</th>
+                <th className="py-2 font-medium">Admission No.</th>
+                <th className="py-2 font-medium">Class</th>
+                <th className="py-2 font-medium">Email</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {students.map((s) => (
+                <tr key={s.id} className="border-b border-taupe/10">
+                  <td className="py-2 text-bistre">{s.user.name}</td>
+                  <td className="py-2 font-mono text-vandyke">{s.admissionNo}</td>
+                  <td className="py-2 text-vandyke">{s.class.name}</td>
+                  <td className="py-2 text-vandyke">{s.user.email}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

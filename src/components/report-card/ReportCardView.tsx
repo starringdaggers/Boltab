@@ -1,6 +1,7 @@
 "use client";
 
 import { RATING_SCALE } from "@/lib/reportCardFields";
+import { formatOrdinalDate } from "@/lib/formatDate";
 
 type ResultRow = {
   id: string;
@@ -27,7 +28,6 @@ type ReportCardData = {
   classTeacherName: string | null;
   classTeacherComment: string | null;
   headmasterComment: string | null;
-  dateIssued: string | null;
 } | null;
 
 export default function ReportCardView({
@@ -60,26 +60,28 @@ export default function ReportCardView({
     return (
       <div>
         <p className="font-semibold text-bistre text-sm mb-1">{title}</p>
-        <table className="w-full text-xs border border-taupe/40 border-collapse">
-          <tbody>
-            {labels.map((label) => (
-              <tr key={label} className="border-b border-taupe/20 last:border-b-0">
-                <td className="px-2 py-1 text-vandyke">{label}</td>
-                {RATING_SCALE.map((r) => (
-                  <td key={r.value} className="px-1.5 py-1 text-center border-l border-taupe/20 w-6">
-                    {values?.[label] === r.value ? "✓" : ""}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs border border-taupe/40 border-collapse min-w-[280px]">
+            <tbody>
+              {labels.map((label) => (
+                <tr key={label} className="border-b border-taupe/20 last:border-b-0">
+                  <td className="px-2 py-1 text-vandyke whitespace-nowrap">{label}</td>
+                  {RATING_SCALE.map((r) => (
+                    <td key={r.value} className="px-1.5 py-1 text-center border-l border-taupe/20 w-6">
+                      {values?.[label] === r.value ? "✓" : ""}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white text-bistre border border-taupe/30 rounded-card p-6 sm:p-8 max-w-3xl mx-auto print:border-none print:p-0 print:max-w-none">
+    <div className="bg-white text-bistre border border-taupe/30 rounded-card p-4 sm:p-8 max-w-3xl mx-auto print:border-none print:p-0 print:max-w-none">
       <div className="text-center mb-5 border-b border-taupe/30 pb-4">
         <p className="font-mono text-[10px] tracking-[0.2em] text-vandyke uppercase">
           Boltab Brilliant Schools
@@ -114,8 +116,8 @@ export default function ReportCardView({
               <td className="px-2 py-1">{reportCard?.timesAbsent ?? "—"}</td>
             </tr>
             <tr>
-              <td className="px-2 py-1 text-vandyke">Next term begins</td>
-              <td className="px-2 py-1">{reportCard?.nextTermBegins ?? "—"}</td>
+              <td className="px-2 py-1 text-vandyke">School resumes on</td>
+              <td className="px-2 py-1">{formatOrdinalDate(reportCard?.nextTermBegins) || "—"}</td>
             </tr>
           </tbody>
         </table>
@@ -201,11 +203,6 @@ export default function ReportCardView({
           <span className="text-vandyke">Headmaster/Headmistress's Comment:</span>{" "}
           {reportCard?.headmasterComment || "—"}
         </p>
-        {reportCard?.dateIssued && (
-          <p className="text-xs text-vandyke">
-            Please return this card to the school on {reportCard.dateIssued}.
-          </p>
-        )}
       </div>
 
       <div className="flex justify-end print:hidden">

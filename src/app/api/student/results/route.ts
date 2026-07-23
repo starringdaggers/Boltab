@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
+import { checkResultsAccess } from "@/lib/resultsAccess";
 
 export async function GET(req: NextRequest) {
   const session = await requireRole("STUDENT");
@@ -19,6 +20,11 @@ export async function GET(req: NextRequest) {
   const term = await db.term.findUnique({ where: { id: termId } });
   if (!term) {
     return NextResponse.json({ error: "Term not found." }, { status: 404 });
+  }
+
+  const access = await checkResultsAccess(student.id, term);
+  if (!access.allowed) {
+    return NextResponse.json({ error: access.reason }, { status: 403 });
   }
 
   const results = await db.result.findMany({

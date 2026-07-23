@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 type TermRow = {
   id: string;
   name: string;
   academicYear: string;
   isLocked: boolean;
+  resultsReleased: boolean;
 };
 
 export default function TermsPage() {
@@ -55,6 +57,15 @@ export default function TermsPage() {
     load();
   }
 
+  async function toggleRelease(term: TermRow) {
+    await fetch(`/api/admin/terms/${term.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resultsReleased: !term.resultsReleased }),
+    });
+    load();
+  }
+
   async function handleDelete(id: string) {
     if (!confirm("Delete this term? This can't be undone.")) return;
     const res = await fetch(`/api/admin/terms/${id}`, { method: "DELETE" });
@@ -67,13 +78,19 @@ export default function TermsPage() {
   }
 
   return (
-    <div className="p-10 max-w-2xl">
+    <div className="p-5 sm:p-8 lg:p-10 max-w-2xl">
       <h1 className="font-display text-3xl text-bistre font-semibold mb-1">
         Terms
       </h1>
       <p className="text-vandyke mb-8">
         Lock a term once results are finalized — teachers can no longer edit
-        results for a locked term.
+        results for a locked term. Release a term's results once you're ready
+        for students to see them; you can also withhold individual students'
+        report cards from the{" "}
+        <Link href="/admin/report-cards" className="underline hover:text-bistre">
+          Report Cards page
+        </Link>
+        .
       </p>
 
       <form onSubmit={handleCreate} className="flex gap-3 mb-8">
@@ -107,7 +124,7 @@ export default function TermsPage() {
           {terms.map((t) => (
             <li
               key={t.id}
-              className="flex items-center justify-between bg-white/40 border border-taupe/30 rounded-lg px-4 py-3"
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white/40 border border-taupe/30 rounded-lg px-4 py-3"
             >
               <div>
                 <span className="text-bistre font-medium">{t.name}</span>
@@ -115,9 +132,9 @@ export default function TermsPage() {
                   {t.academicYear}
                 </span>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <span
-                  className={`text-xs px-2 py-1 rounded-full ${
+                  className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${
                     t.isLocked
                       ? "bg-status-fail/10 text-status-fail"
                       : "bg-status-pass/10 text-status-pass"
@@ -127,13 +144,30 @@ export default function TermsPage() {
                 </span>
                 <button
                   onClick={() => toggleLock(t)}
-                  className="text-sm text-vandyke hover:text-bistre"
+                  className="text-sm text-vandyke hover:text-bistre whitespace-nowrap"
                 >
                   {t.isLocked ? "Unlock" : "Lock"}
                 </button>
+
+                <span
+                  className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${
+                    t.resultsReleased
+                      ? "bg-status-pass/10 text-status-pass"
+                      : "bg-taupe/20 text-vandyke"
+                  }`}
+                >
+                  {t.resultsReleased ? "Released to students" : "Not released"}
+                </span>
+                <button
+                  onClick={() => toggleRelease(t)}
+                  className="text-sm text-vandyke hover:text-bistre whitespace-nowrap"
+                >
+                  {t.resultsReleased ? "Withhold" : "Release"}
+                </button>
+
                 <button
                   onClick={() => handleDelete(t.id)}
-                  className="text-sm text-status-fail"
+                  className="text-sm text-status-fail whitespace-nowrap"
                 >
                   Delete
                 </button>

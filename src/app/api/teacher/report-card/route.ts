@@ -84,7 +84,6 @@ const saveSchema = z.object({
   classTeacherName: z.string().max(100).optional().nullable(),
   classTeacherComment: z.string().max(500).optional().nullable(),
   headmasterComment: z.string().max(500).optional().nullable(),
-  dateIssued: z.string().max(50).optional().nullable(),
 });
 
 export async function POST(req: NextRequest) {

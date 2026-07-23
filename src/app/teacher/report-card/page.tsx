@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PSYCHOMOTOR_SKILLS, AFFECTIVE_TRAITS, RATING_SCALE } from "@/lib/reportCardFields";
+import DateField from "@/components/shared/DateField";
 
 type Option = { id: string; name: string };
 type Term = { id: string; name: string; academicYear: string; isLocked: boolean };
@@ -17,7 +18,6 @@ type ReportCardData = {
   classTeacherName: string | null;
   classTeacherComment: string | null;
   headmasterComment: string | null;
-  dateIssued: string | null;
 } | null;
 
 const EMPTY_FORM = {
@@ -29,7 +29,6 @@ const EMPTY_FORM = {
   classTeacherName: "",
   classTeacherComment: "",
   headmasterComment: "",
-  dateIssued: "",
 };
 
 export default function TeacherReportCardPage() {
@@ -72,17 +71,22 @@ export default function TeacherReportCardPage() {
         return;
       }
       setLoadingRoster(true);
-      const params = new URLSearchParams({ classId: selectedClassId, termId: selectedTermId });
-      const res = await fetch(`/api/teacher/report-card?${params}`);
-      const data = await res.json();
-      setLoadingRoster(false);
-      if (!res.ok) {
-        setMessage({ type: "error", text: data.error });
-        return;
+      try {
+        const params = new URLSearchParams({ classId: selectedClassId, termId: selectedTermId });
+        const res = await fetch(`/api/teacher/report-card?${params}`);
+        const data = await res.json();
+        if (!res.ok) {
+          setMessage({ type: "error", text: data.error || "Couldn't load the class roster." });
+          return;
+        }
+        setRoster(data.roster || []);
+        setNumberOnRoll(data.numberOnRoll || 0);
+        setIsLocked(data.isLocked);
+      } catch {
+        setMessage({ type: "error", text: "Couldn't reach the server. Check your connection and try again." });
+      } finally {
+        setLoadingRoster(false);
       }
-      setRoster(data.roster || []);
-      setNumberOnRoll(data.numberOnRoll || 0);
-      setIsLocked(data.isLocked);
     }
     loadRoster();
   }, [selectedClassId, selectedTermId]);
@@ -92,32 +96,36 @@ export default function TeacherReportCardPage() {
       if (!selectedClassId || !selectedTermId || !selectedStudentId) return;
       setLoadingStudent(true);
       setMessage(null);
-      const params = new URLSearchParams({
-        classId: selectedClassId,
-        termId: selectedTermId,
-        studentId: selectedStudentId,
-      });
-      const res = await fetch(`/api/teacher/report-card?${params}`);
-      const data = await res.json();
-      setLoadingStudent(false);
-      if (!res.ok) {
-        setMessage({ type: "error", text: data.error });
-        return;
+      try {
+        const params = new URLSearchParams({
+          classId: selectedClassId,
+          termId: selectedTermId,
+          studentId: selectedStudentId,
+        });
+        const res = await fetch(`/api/teacher/report-card?${params}`);
+        const data = await res.json();
+        if (!res.ok) {
+          setMessage({ type: "error", text: data.error || "Couldn't load this student's report card." });
+          return;
+        }
+        const rc: ReportCardData = data.reportCard;
+        setForm({
+          timesSchoolOpened: rc?.timesSchoolOpened != null ? String(rc.timesSchoolOpened) : "",
+          timesPresent: rc?.timesPresent != null ? String(rc.timesPresent) : "",
+          timesAbsent: rc?.timesAbsent != null ? String(rc.timesAbsent) : "",
+          nextTermBegins: rc?.nextTermBegins || "",
+          generalPerformance: rc?.generalPerformance || "",
+          classTeacherName: rc?.classTeacherName || "",
+          classTeacherComment: rc?.classTeacherComment || "",
+          headmasterComment: rc?.headmasterComment || "",
+        });
+        setPsychomotor(rc?.psychomotor || {});
+        setAffective(rc?.affective || {});
+      } catch {
+        setMessage({ type: "error", text: "Couldn't reach the server. Check your connection and try again." });
+      } finally {
+        setLoadingStudent(false);
       }
-      const rc: ReportCardData = data.reportCard;
-      setForm({
-        timesSchoolOpened: rc?.timesSchoolOpened != null ? String(rc.timesSchoolOpened) : "",
-        timesPresent: rc?.timesPresent != null ? String(rc.timesPresent) : "",
-        timesAbsent: rc?.timesAbsent != null ? String(rc.timesAbsent) : "",
-        nextTermBegins: rc?.nextTermBegins || "",
-        generalPerformance: rc?.generalPerformance || "",
-        classTeacherName: rc?.classTeacherName || "",
-        classTeacherComment: rc?.classTeacherComment || "",
-        headmasterComment: rc?.headmasterComment || "",
-        dateIssued: rc?.dateIssued || "",
-      });
-      setPsychomotor(rc?.psychomotor || {});
-      setAffective(rc?.affective || {});
     }
     loadStudent();
   }, [selectedStudentId, selectedClassId, selectedTermId]);
@@ -146,7 +154,6 @@ export default function TeacherReportCardPage() {
         classTeacherName: form.classTeacherName || null,
         classTeacherComment: form.classTeacherComment || null,
         headmasterComment: form.headmasterComment || null,
-        dateIssued: form.dateIssued || null,
       }),
     });
     const data = await res.json();
@@ -206,7 +213,7 @@ export default function TeacherReportCardPage() {
   }
 
   return (
-    <div className="p-10 max-w-4xl">
+    <div className="p-5 sm:p-8 lg:p-10 max-w-4xl">
       <h1 className="font-display text-3xl text-bistre font-semibold mb-1">
         Report Card Details
       </h1>
@@ -325,17 +332,12 @@ export default function TeacherReportCardPage() {
                   className="mt-1 w-full border border-taupe/50 rounded px-2 py-1.5 bg-white/60 disabled:opacity-50"
                 />
               </label>
-              <label className="text-xs text-vandyke">
-                Next term begins
-                <input
-                  type="text"
-                  placeholder="e.g. 14th September, 2026"
-                  disabled={isLocked}
-                  value={form.nextTermBegins}
-                  onChange={(e) => updateForm("nextTermBegins", e.target.value)}
-                  className="mt-1 w-full border border-taupe/50 rounded px-2 py-1.5 bg-white/60 disabled:opacity-50"
-                />
-              </label>
+              <DateField
+                label="School resumes on"
+                disabled={isLocked}
+                value={form.nextTermBegins}
+                onChange={(value) => updateForm("nextTermBegins", value)}
+              />
             </div>
           </div>
 
@@ -394,17 +396,6 @@ export default function TeacherReportCardPage() {
                 disabled={isLocked}
                 value={form.headmasterComment}
                 onChange={(e) => updateForm("headmasterComment", e.target.value)}
-                className="mt-1 w-full border border-taupe/50 rounded px-2 py-1.5 bg-white/60 disabled:opacity-50"
-              />
-            </label>
-            <label className="text-xs text-vandyke">
-              Return this card to school on
-              <input
-                type="text"
-                placeholder="e.g. 14th September, 2026"
-                disabled={isLocked}
-                value={form.dateIssued}
-                onChange={(e) => updateForm("dateIssued", e.target.value)}
                 className="mt-1 w-full border border-taupe/50 rounded px-2 py-1.5 bg-white/60 disabled:opacity-50"
               />
             </label>

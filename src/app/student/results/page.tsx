@@ -51,14 +51,16 @@ export default function StudentResultsPage() {
       if (!selectedTermId) return;
       setLoadingResults(true);
       setError(null);
-      const res = await fetch(`/api/student/results?termId=${selectedTermId}`);
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error);
-        setResults([]);
-        setAverage(null);
-        setAggregatePercent(null);
-      } else {
+      try {
+        const res = await fetch(`/api/student/results?termId=${selectedTermId}`);
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Couldn't load your results.");
+          setResults([]);
+          setAverage(null);
+          setAggregatePercent(null);
+          return;
+        }
         setResults(data.results);
         setAverage(data.average);
         setAggregatePercent(data.aggregatePercent);
@@ -71,15 +73,18 @@ export default function StudentResultsPage() {
           setShowCelebration(true);
           setCelebratedTermId(selectedTermId);
         }
+      } catch {
+        setError("Couldn't reach the server. Check your connection and try again.");
+      } finally {
+        setLoadingResults(false);
       }
-      setLoadingResults(false);
     }
     loadResults();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTermId]);
 
   return (
-    <div className="p-10">
+    <div className="p-5 sm:p-8 lg:p-10">
       <CelebrationModal
         open={showCelebration}
         onClose={() => setShowCelebration(false)}

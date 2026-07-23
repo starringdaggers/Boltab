@@ -103,7 +103,7 @@ export default function TeachersPage() {
   }
 
   return (
-    <div className="p-10 max-w-3xl">
+    <div className="p-5 sm:p-8 lg:p-10 max-w-3xl">
       <h1 className="font-display text-3xl text-bistre font-semibold mb-1">
         Teachers
       </h1>

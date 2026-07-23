@@ -39,7 +39,7 @@ export default async function StudentOverview() {
   }
 
   return (
-    <div className="p-10">
+    <div className="p-5 sm:p-8 lg:p-10">
       <h1 className="font-display text-3xl text-bistre font-semibold mb-1">
         Welcome, {session?.name}
       </h1>

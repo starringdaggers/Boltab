@@ -65,7 +65,7 @@ export default function ClassesPage() {
   }
 
   return (
-    <div className="p-10 max-w-2xl">
+    <div className="p-5 sm:p-8 lg:p-10 max-w-2xl">
       <h1 className="font-display text-3xl text-bistre font-semibold mb-1">
         Classes
       </h1>

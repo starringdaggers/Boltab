@@ -8,7 +8,7 @@ type Term = { id: string; name: string; academicYear: string };
 
 export default function StudentReportCardPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-vandyke">Loading…</div>}>
+    <Suspense fallback={<div className="p-5 sm:p-8 lg:p-10 text-vandyke">Loading…</div>}>
       <StudentReportCardContent />
     </Suspense>
   );
@@ -39,21 +39,26 @@ function StudentReportCardContent() {
       if (!selectedTermId) return;
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/student/report-card?termId=${selectedTermId}`);
-      const d = await res.json();
-      setLoading(false);
-      if (!res.ok) {
-        setError(d.error);
-        setData(null);
-        return;
+      try {
+        const res = await fetch(`/api/student/report-card?termId=${selectedTermId}`);
+        const d = await res.json();
+        if (!res.ok) {
+          setError(d.error || "Couldn't load your report card.");
+          setData(null);
+          return;
+        }
+        setData(d);
+      } catch {
+        setError("Couldn't reach the server. Check your connection and try again.");
+      } finally {
+        setLoading(false);
       }
-      setData(d);
     }
     loadData();
   }, [selectedTermId]);
 
   return (
-    <div className="p-10">
+    <div className="p-5 sm:p-8 lg:p-10">
       <div className="max-w-3xl mx-auto mb-6 flex items-center justify-between flex-wrap gap-3 print:hidden">
         <h1 className="font-display text-3xl text-bistre font-semibold">Report Card</h1>
         {terms.length > 0 && (

@@ -94,38 +94,43 @@ export default function TeacherResultsPage() {
       }
       setLoadingRoster(true);
       setMessage(null);
-      const params = new URLSearchParams({
-        classId: selectedClassId,
-        subjectId: selectedSubjectId,
-        termId: selectedTermId,
-      });
-      const res = await fetch(`/api/teacher/results?${params}`);
-      const data = await res.json();
-      if (!res.ok) {
-        setMessage({ type: "error", text: data.error });
-        setRoster([]);
-        setLoadingRoster(false);
-        return;
-      }
-      setRoster(data.roster);
-      setIsLocked(data.isLocked);
-      setDefaults(data.defaults);
+      try {
+        const params = new URLSearchParams({
+          classId: selectedClassId,
+          subjectId: selectedSubjectId,
+          termId: selectedTermId,
+        });
+        const res = await fetch(`/api/teacher/results?${params}`);
+        const data = await res.json();
+        if (!res.ok) {
+          setMessage({ type: "error", text: data.error || "Something went wrong loading the roster." });
+          setRoster([]);
+          return;
+        }
+        setRoster(data.roster);
+        setIsLocked(data.isLocked);
+        setDefaults(data.defaults);
 
-      const initialScores: typeof scores = {};
-      for (const entry of data.roster as RosterEntry[]) {
-        const r = entry.existingResult;
-        initialScores[entry.studentId] = {
-          firstHalfScore: r ? String(r.firstHalfScore) : "",
-          firstHalfObtainable: String(r ? r.firstHalfObtainable : data.defaults.firstHalfObtainable),
-          secondHalfScore: r ? String(r.secondHalfScore) : "",
-          secondHalfObtainable: String(r ? r.secondHalfObtainable : data.defaults.secondHalfObtainable),
-          examScore: r ? String(r.examScore) : "",
-          examObtainable: String(r ? r.examObtainable : data.defaults.examObtainable),
-          remark: r?.remark || "",
-        };
+        const initialScores: typeof scores = {};
+        for (const entry of data.roster as RosterEntry[]) {
+          const r = entry.existingResult;
+          initialScores[entry.studentId] = {
+            firstHalfScore: r ? String(r.firstHalfScore) : "",
+            firstHalfObtainable: String(r ? r.firstHalfObtainable : data.defaults.firstHalfObtainable),
+            secondHalfScore: r ? String(r.secondHalfScore) : "",
+            secondHalfObtainable: String(r ? r.secondHalfObtainable : data.defaults.secondHalfObtainable),
+            examScore: r ? String(r.examScore) : "",
+            examObtainable: String(r ? r.examObtainable : data.defaults.examObtainable),
+            remark: r?.remark || "",
+          };
+        }
+        setScores(initialScores);
+      } catch {
+        setMessage({ type: "error", text: "Couldn't reach the server. Check your connection and try again." });
+        setRoster([]);
+      } finally {
+        setLoadingRoster(false);
       }
-      setScores(initialScores);
-      setLoadingRoster(false);
     }
     loadRoster();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -192,7 +197,7 @@ export default function TeacherResultsPage() {
   }
 
   return (
-    <div className="p-10">
+    <div className="p-5 sm:p-8 lg:p-10">
       <h1 className="font-display text-3xl text-bistre font-semibold mb-1">
         Enter Results
       </h1>
