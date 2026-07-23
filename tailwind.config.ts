@@ -1,14 +1,14 @@
 import type { Config } from "tailwindcss";
 
 // Boltab Brilliant Schools — design token system
-// Palette source: "Starla" blues (#021024 → #C1E8FF), applied by Claude.
-// Token names (bistre/antique/taupe/choc/vandyke) are historical from the
-// original brown palette — they're kept as-is here so no component code
-// needs to change, they just now resolve to the blue values below, in the
-// same light-to-dark structural roles as before:
-//   antique = lightest (backgrounds)   → taupe = muted/borders
-//   choc    = accent/CTA               → vandyke = secondary dark
-//   bistre  = darkest (primary/nav)
+// Palette: built entirely from "Ocean Sunset" (#0F2027 → #2C5364), no blue.
+// Token names (bistre/antique/taupe/choc/vandyke) are historical from an
+// earlier palette — kept as-is so no component code needs to change, they
+// just resolve to these teal/neutral values now, in the same light-to-dark
+// structural roles as before:
+//   antique = lightest (warm neutral backgrounds) → taupe = muted teal-grey/borders
+//   choc    = accent/CTA (gradient's light stop)   → vandyke = secondary dark (mid-teal)
+//   bistre  = darkest (primary/nav, gradient's dark stop)
 // Two functional accents (outside the core palette) are added ONLY for result status states.
 const config: Config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
@@ -16,24 +16,24 @@ const config: Config = {
     extend: {
       colors: {
         bistre: {
-          DEFAULT: "#021024",
-          light: "#0A2340",
+          DEFAULT: "#0F2027",
+          light: "#16303B",
         },
         antique: {
-          DEFAULT: "#C1E8FF",
-          dim: "#A9D9F5",
+          DEFAULT: "#F4F2ED",
+          dim: "#EAE6DD",
         },
         taupe: {
-          DEFAULT: "#7DA0CA",
-          dark: "#6890BC",
+          DEFAULT: "#7C97A0",
+          dark: "#66808A",
         },
         choc: {
-          DEFAULT: "#5483B3",
-          dark: "#3F6690",
+          DEFAULT: "#2C5364",
+          dark: "#234353",
         },
         vandyke: {
-          DEFAULT: "#052659",
-          light: "#0C3670",
+          DEFAULT: "#1D3A46",
+          light: "#274957",
         },
         // Functional accents — used ONLY for grade/result states, never as brand color
         status: {
@@ -48,10 +48,6 @@ const config: Config = {
         mono: ["var(--font-plexmono)", "monospace"],
       },
       backgroundImage: {
-        // "Ocean Sunset" gradient — a deliberate complement to the Starla
-        // blues (#0F2027 sits right next to bistre, #2C5364 sits between
-        // vandyke and choc), used for dark panels that want more depth
-        // than a flat bistre fill.
         "ocean-sunset": "linear-gradient(160deg, #0F2027 0%, #2C5364 100%)",
       },
       borderRadius: {

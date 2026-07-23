@@ -4,7 +4,7 @@ export default function LandingPage() {
   return (
     <main className="bg-antique text-bistre">
       {/* Nav */}
-      <header className="sticky top-0 z-20 bg-bistre">
+      <header className="sticky top-0 z-20 bg-ocean-sunset">
         <div className="max-w-6xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
           <span className="font-mono text-xs tracking-[0.2em] text-antique uppercase">
             Boltab Brilliant Schools
@@ -72,13 +72,13 @@ export default function LandingPage() {
                 [310, 220], [200, 30], [150, 260], [250, 270], [20, 150],
                 [380, 190], [110, 60],
               ].map(([cx, cy], i) => (
-                <circle key={i} cx={cx} cy={cy} r="1.6" fill="#7DA0CA" opacity="0.6" />
+                <circle key={i} cx={cx} cy={cy} r="1.6" fill="#7C97A0" opacity="0.6" />
               ))}
 
               <polyline
                 points="40,230 110,190 160,205 210,140 260,110 310,70 360,55"
                 fill="none"
-                stroke="#C1E8FF"
+                stroke="#F4F2ED"
                 strokeWidth="1.5"
                 strokeDasharray="3 5"
                 opacity="0.7"
@@ -87,7 +87,7 @@ export default function LandingPage() {
                 [40, 230], [110, 190], [160, 205], [210, 140],
                 [260, 110], [310, 70], [360, 55],
               ].map(([cx, cy], i) => (
-                <circle key={i} cx={cx} cy={cy} r="4" fill="#C1E8FF" />
+                <circle key={i} cx={cx} cy={cy} r="4" fill="#F4F2ED" />
               ))}
             </svg>
             <div className="absolute bottom-5 left-6 right-6">

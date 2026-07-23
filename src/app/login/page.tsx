@@ -40,7 +40,7 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen w-full grid grid-cols-1 md:grid-cols-2">
       {/* Left panel — the form */}
-      <div className="flex items-center justify-center bg-bistre px-8 py-16 md:px-16">
+      <div className="flex items-center justify-center bg-ocean-sunset px-8 py-16 md:px-16">
         <div className="w-full max-w-sm">
           <p className="font-mono text-xs tracking-[0.2em] text-taupe uppercase mb-3">
             Boltab Brilliant Schools
@@ -141,7 +141,7 @@ export default function LoginPage() {
           className="absolute inset-0 opacity-[0.08]"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(to bottom, transparent, transparent 47px, #C1E8FF 48px)",
+              "repeating-linear-gradient(to bottom, transparent, transparent 47px, #F4F2ED 48px)",
           }}
         />
 
@@ -157,16 +157,16 @@ export default function LoginPage() {
               cy="80"
               r="76"
               fill="none"
-              stroke="#C1E8FF"
+              stroke="#F4F2ED"
               strokeWidth="2"
               strokeDasharray="4 6"
             />
-            <circle cx="80" cy="80" r="60" fill="#C1E8FF" opacity="0.08" />
+            <circle cx="80" cy="80" r="60" fill="#F4F2ED" opacity="0.08" />
             <text
               x="80"
               y="72"
               textAnchor="middle"
-              fill="#C1E8FF"
+              fill="#F4F2ED"
               fontFamily="var(--font-fraunces)"
               fontSize="34"
               fontWeight="600"
@@ -177,7 +177,7 @@ export default function LoginPage() {
               x="80"
               y="98"
               textAnchor="middle"
-              fill="#7DA0CA"
+              fill="#7C97A0"
               fontFamily="var(--font-plexmono)"
               fontSize="9"
               letterSpacing="2"

@@ -57,7 +57,7 @@ export default function DashboardShell({
   return (
     <div className="min-h-screen flex bg-antique">
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-30 bg-bistre flex items-center justify-between px-4 h-14 print:hidden">
+      <div className="md:hidden fixed top-0 inset-x-0 z-30 bg-ocean-sunset flex items-center justify-between px-4 h-14 print:hidden">
         <div>
           <p className="font-mono text-[9px] tracking-[0.15em] text-taupe uppercase">
             Boltab Brilliant Schools
@@ -84,7 +84,7 @@ export default function DashboardShell({
             className="absolute inset-0 bg-bistre/60"
             onClick={() => setOpen(false)}
           />
-          <aside className="relative w-72 max-w-[80vw] bg-bistre flex flex-col h-full">
+          <aside className="relative w-72 max-w-[80vw] bg-ocean-sunset flex flex-col h-full">
             <button
               onClick={() => setOpen(false)}
               aria-label="Close menu"
@@ -101,7 +101,7 @@ export default function DashboardShell({
       )}
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-60 shrink-0 bg-bistre flex-col print:hidden">
+      <aside className="hidden md:flex w-60 shrink-0 bg-ocean-sunset flex-col print:hidden">
         {sidebarInner}
       </aside>
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const CONFETTI_COLORS = ["#5483B3", "#7DA0CA", "#C1E8FF", "#052659", "#4C7A5E"];
+const CONFETTI_COLORS = ["#2C5364", "#7C97A0", "#F4F2ED", "#B08B3A", "#4C7A5E"];
 
 export default function CelebrationModal({
   open,
