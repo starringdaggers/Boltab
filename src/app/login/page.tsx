@@ -135,7 +135,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel — signature element: a ledger-seal motif */}
-      <div className="hidden md:flex relative items-center justify-center bg-vandyke overflow-hidden">
+      <div className="hidden md:flex relative items-center justify-center bg-ocean-sunset overflow-hidden">
         {/* Faint ledger lines — echoes a marked report sheet */}
         <div
           className="absolute inset-0 opacity-[0.08]"

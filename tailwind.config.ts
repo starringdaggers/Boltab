@@ -47,6 +47,13 @@ const config: Config = {
         body: ["var(--font-worksans)", "sans-serif"],
         mono: ["var(--font-plexmono)", "monospace"],
       },
+      backgroundImage: {
+        // "Ocean Sunset" gradient — a deliberate complement to the Starla
+        // blues (#0F2027 sits right next to bistre, #2C5364 sits between
+        // vandyke and choc), used for dark panels that want more depth
+        // than a flat bistre fill.
+        "ocean-sunset": "linear-gradient(160deg, #0F2027 0%, #2C5364 100%)",
+      },
       borderRadius: {
         card: "20px",
       },

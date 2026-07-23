@@ -61,7 +61,7 @@ export default function LandingPage() {
 
         {/* Signature element: term averages plotted as a constellation */}
         <div className="relative">
-          <div className="relative bg-bistre rounded-card aspect-[4/3] overflow-hidden">
+          <div className="relative bg-ocean-sunset rounded-card aspect-[4/3] overflow-hidden">
             <svg
               viewBox="0 0 400 300"
               className="w-full h-full"
@@ -240,7 +240,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA banner */}
-      <section className="bg-bistre">
+      <section className="bg-ocean-sunset">
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 text-center">
           <h2 className="font-display text-2xl md:text-3xl text-antique font-semibold mb-4">
             Ready to check this term's results?
