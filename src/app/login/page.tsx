@@ -73,40 +73,53 @@ export default function LoginPage() {
           </div>
 
           <div className="relative z-10 flex justify-center">
-            {/* Seal badge — signature element */}
-            <svg viewBox="0 0 160 160" className="w-28 h-28" aria-hidden="true">
-              <circle
-                cx="80"
-                cy="80"
-                r="76"
-                fill="none"
-                stroke="#F4F2ED"
-                strokeWidth="2"
-                strokeDasharray="4 6"
-              />
-              <circle cx="80" cy="80" r="60" fill="#F4F2ED" opacity="0.08" />
-              <text
-                x="80"
-                y="72"
-                textAnchor="middle"
-                fill="#F4F2ED"
-                fontFamily="var(--font-fraunces)"
-                fontSize="34"
-                fontWeight="600"
-              >
-                A+
-              </text>
-              <text
-                x="80"
-                y="98"
-                textAnchor="middle"
-                fill="#7C97A0"
-                fontFamily="var(--font-plexmono)"
-                fontSize="9"
-                letterSpacing="2"
-              >
-                RESULTS PORTAL
-              </text>
+            {/* Signature illustration — student at a desk with books */}
+            <svg viewBox="0 0 300 220" className="w-full max-w-[260px]" aria-hidden="true">
+              {/* floating lightbulb accent */}
+              <g opacity="0.85">
+                <circle cx="248" cy="30" r="12" fill="none" stroke="#F4F2ED" strokeWidth="2" />
+                <path d="M248 42v8M242 54h12" stroke="#F4F2ED" strokeWidth="2" strokeLinecap="round" />
+                <path d="M243 26a6 6 0 0 1 10 0" stroke="#F4F2ED" strokeWidth="1.5" fill="none" />
+              </g>
+
+              {/* small potted plant */}
+              <g>
+                <path d="M18 176h20l-3 26H21l-3-26Z" fill="#7C97A0" />
+                <path d="M28 176c0-14-16-18-16-30 10 0 16 12 16 22 0-16 14-22 22-18-2 14-14 20-22 26Z" fill="#4C7A5E" />
+              </g>
+
+              {/* desk */}
+              <rect x="60" y="150" width="190" height="10" rx="3" fill="#7C97A0" />
+              <rect x="70" y="160" width="8" height="40" fill="#66808A" />
+              <rect x="222" y="160" width="8" height="40" fill="#66808A" />
+
+              {/* stacked books on the desk */}
+              <g>
+                <rect x="196" y="128" width="46" height="11" rx="2" fill="#2C5364" transform="rotate(-3 196 128)" />
+                <rect x="198" y="116" width="42" height="11" rx="2" fill="#F4F2ED" opacity="0.9" transform="rotate(2 198 116)" />
+                <rect x="200" y="104" width="38" height="11" rx="2" fill="#7C97A0" transform="rotate(-2 200 104)" />
+              </g>
+
+              {/* student, seated behind the desk */}
+              <g>
+                {/* far arm resting on desk */}
+                <rect x="128" y="132" width="34" height="12" rx="6" fill="#1D3A46" />
+                {/* torso */}
+                <path d="M104 150c0-30 20-46 46-46s46 16 46 46" fill="#2C5364" />
+                {/* near arm resting on the open book */}
+                <rect x="118" y="136" width="36" height="12" rx="6" fill="#234353" />
+                {/* head */}
+                <circle cx="150" cy="86" r="22" fill="#F4F2ED" />
+                {/* simple hair */}
+                <path d="M129 82a21 21 0 0 1 42 0c-6-4-12-6-21-6s-15 2-21 6Z" fill="#0F2027" />
+                {/* pencil in hand */}
+                <rect x="150" y="128" width="30" height="5" rx="2.5" fill="#F4F2ED" transform="rotate(-18 150 128)" />
+              </g>
+
+              {/* open book in front of the student */}
+              <path d="M112 150c10-6 22-6 32 0v14c-10-6-22-6-32 0Z" fill="#F4F2ED" />
+              <path d="M176 150c-10-6-22-6-32 0v14c10-6 22-6 32 0Z" fill="#F4F2ED" opacity="0.85" />
+              <path d="M144 150v14" stroke="#7C97A0" strokeWidth="1.5" />
             </svg>
           </div>
         </div>
