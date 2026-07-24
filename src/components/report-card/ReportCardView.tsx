@@ -28,6 +28,8 @@ type ReportCardData = {
   classTeacherName: string | null;
   classTeacherComment: string | null;
   headmasterComment: string | null;
+  weightKg: number | null;
+  heightCm: number | null;
 } | null;
 
 export default function ReportCardView({
@@ -186,6 +188,26 @@ export default function ReportCardView({
       <p className="text-[11px] text-vandyke mb-5">
         Grading scale: 5 - Excellent · 4 - Very Good · 3 - Good · 2 - Fair · 1 - Poor
       </p>
+
+      <div className="mb-5">
+        <p className="font-display font-semibold mb-2">5. Weight &amp; Height</p>
+        <table className="w-full text-xs border border-taupe/40 border-collapse max-w-xs">
+          <tbody>
+            <tr className="border-b border-taupe/20">
+              <td className="px-2 py-1 text-vandyke">Weight</td>
+              <td className="px-2 py-1">
+                {reportCard?.weightKg != null ? `${reportCard.weightKg} kg` : "—"}
+              </td>
+            </tr>
+            <tr>
+              <td className="px-2 py-1 text-vandyke">Height</td>
+              <td className="px-2 py-1">
+                {reportCard?.heightCm != null ? `${reportCard.heightCm} cm` : "—"}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <div className="text-sm space-y-2 mb-5">
         <p>

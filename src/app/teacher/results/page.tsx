@@ -71,20 +71,42 @@ export default function TeacherResultsPage() {
   useEffect(() => {
     async function loadOptions() {
       setLoadingOptions(true);
-      const [classesRes, subjectsRes, assignmentsRes, termsRes] = await Promise.all([
+      const [classesRes, assignmentsRes, termsRes] = await Promise.all([
         fetch("/api/teacher/classes"),
-        fetch("/api/teacher/subjects"),
         fetch("/api/teacher/assignments"),
         fetch("/api/teacher/terms"),
       ]);
       setClasses((await classesRes.json()).classes || []);
-      setSubjects((await subjectsRes.json()).subjects || []);
       setAssignments((await assignmentsRes.json()).assignments || []);
       setTerms((await termsRes.json()).terms || []);
       setLoadingOptions(false);
     }
     loadOptions();
   }, []);
+
+  // Subjects are scoped to whichever class is selected — a teacher assigned
+  // Math for one class shouldn't see English from a different class they teach.
+  useEffect(() => {
+    async function loadSubjects() {
+      const params = selectedClassId ? `?classId=${selectedClassId}` : "";
+      const res = await fetch(`/api/teacher/subjects${params}`);
+      const data = await res.json();
+      setSubjects(data.subjects || []);
+      // If the previously selected subject isn't valid for the new class, clear it
+      setSelectedSubjectId((prev) =>
+        (data.subjects || []).some((s: Option) => s.id === prev) ? prev : ""
+      );
+    }
+    loadSubjects();
+  }, [selectedClassId]);
+
+  async function dropAssignment(assignmentId: string) {
+    if (!confirm("Drop this class/subject from your assignments? An admin can re-assign it later.")) return;
+    const res = await fetch(`/api/teacher/assignments/${assignmentId}`, { method: "DELETE" });
+    if (res.ok) {
+      setAssignments((prev) => prev.filter((a) => a.id !== assignmentId));
+    }
+  }
 
   useEffect(() => {
     async function loadRoster() {
@@ -214,13 +236,22 @@ export default function TeacherResultsPage() {
           </p>
           <div className="flex flex-wrap gap-2">
             {assignments.map((a) => (
-              <button
+              <span
                 key={a.id}
-                onClick={() => applyShortcut(a)}
-                className="text-xs bg-taupe/20 hover:bg-taupe/30 text-vandyke rounded-full px-3 py-1.5 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs bg-taupe/20 hover:bg-taupe/30 text-vandyke rounded-full pl-3 pr-1.5 py-1.5 transition-colors"
               >
-                {a.class.name} · {a.subject.name}
-              </button>
+                <button onClick={() => applyShortcut(a)} className="hover:underline">
+                  {a.class.name} · {a.subject.name}
+                </button>
+                <button
+                  onClick={() => dropAssignment(a.id)}
+                  aria-label={`Drop ${a.class.name} ${a.subject.name}`}
+                  title="Drop this assignment"
+                  className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-status-fail/20 hover:text-status-fail transition-colors"
+                >
+                  ×
+                </button>
+              </span>
             ))}
           </div>
         </div>

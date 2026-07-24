@@ -25,6 +25,10 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Login rate limiting: 3 failed attempts locks the account for 10 minutes
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+
   student Student?
   teacher Teacher?
 
@@ -166,6 +170,10 @@ model ReportCard {
   classTeacherComment String?
   headmasterComment   String?
   dateIssued          String?
+
+  // 5. Weight & Height
+  weightKg Float?
+  heightCm Float?
 
   // Admin-controlled: hides this specific student's report card/results even
   // when the term overall has been released to students.

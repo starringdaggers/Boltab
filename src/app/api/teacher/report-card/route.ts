@@ -9,6 +9,13 @@ async function getOwnTeacher(userId: string) {
   return db.teacher.findUnique({ where: { userId } });
 }
 
+async function isAssignedToClass(teacherId: string, classId: string) {
+  const assignment = await db.teacherAssignment.findFirst({
+    where: { teacherId, classId },
+  });
+  return !!assignment;
+}
+
 export async function GET(req: NextRequest) {
   const session = await requireRole("TEACHER");
   if (!session) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
@@ -19,6 +26,18 @@ export async function GET(req: NextRequest) {
 
   if (!classId || !termId) {
     return NextResponse.json({ error: "classId and termId are required." }, { status: 400 });
+  }
+
+  const teacher = await getOwnTeacher(session.userId);
+  if (!teacher) {
+    return NextResponse.json({ error: "Teacher profile not found." }, { status: 404 });
+  }
+
+  if (!(await isAssignedToClass(teacher.id, classId))) {
+    return NextResponse.json(
+      { error: "You haven't been assigned to this class. Ask an admin to assign it to you." },
+      { status: 403 }
+    );
   }
 
   const term = await db.term.findUnique({ where: { id: termId } });
@@ -84,6 +103,8 @@ const saveSchema = z.object({
   classTeacherName: z.string().max(100).optional().nullable(),
   classTeacherComment: z.string().max(500).optional().nullable(),
   headmasterComment: z.string().max(500).optional().nullable(),
+  weightKg: z.number().min(0).max(500).optional().nullable(),
+  heightCm: z.number().min(0).max(300).optional().nullable(),
 });
 
 export async function POST(req: NextRequest) {
@@ -115,6 +136,13 @@ export async function POST(req: NextRequest) {
   const student = await db.student.findUnique({ where: { id: studentId } });
   if (!student) {
     return NextResponse.json({ error: "Student not found." }, { status: 404 });
+  }
+
+  if (!(await isAssignedToClass(teacher.id, student.classId))) {
+    return NextResponse.json(
+      { error: "You haven't been assigned to this student's class. Ask an admin to assign it to you." },
+      { status: 403 }
+    );
   }
 
   // Prisma's Json? columns need the explicit JsonNull sentinel to store a

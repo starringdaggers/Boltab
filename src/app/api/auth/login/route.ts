@@ -9,6 +9,13 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const MAX_ATTEMPTS = 3;
+const LOCKOUT_MINUTES = 10;
+
+function minutesRemaining(lockedUntil: Date): number {
+  return Math.max(1, Math.ceil((lockedUntil.getTime() - Date.now()) / 60000));
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = loginSchema.safeParse(body);
@@ -33,12 +40,52 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Account is currently locked out from too many recent failed attempts
+  if (user.lockedUntil && user.lockedUntil.getTime() > Date.now()) {
+    const mins = minutesRemaining(user.lockedUntil);
+    return NextResponse.json(
+      {
+        error: `Too many failed sign-in attempts. Try again in ${mins} minute${mins === 1 ? "" : "s"}.`,
+      },
+      { status: 429 }
+    );
+  }
+
   const validPassword = await verifyPassword(password, user.passwordHash);
+
   if (!validPassword) {
+    const attempts = user.failedLoginAttempts + 1;
+
+    if (attempts >= MAX_ATTEMPTS) {
+      const lockedUntil = new Date(Date.now() + LOCKOUT_MINUTES * 60 * 1000);
+      await db.user.update({
+        where: { id: user.id },
+        data: { failedLoginAttempts: 0, lockedUntil },
+      });
+      return NextResponse.json(
+        {
+          error: `Too many failed sign-in attempts. Try again in ${LOCKOUT_MINUTES} minutes.`,
+        },
+        { status: 429 }
+      );
+    }
+
+    await db.user.update({
+      where: { id: user.id },
+      data: { failedLoginAttempts: attempts },
+    });
     return NextResponse.json(
       { error: "Incorrect email or password." },
       { status: 401 }
     );
+  }
+
+  // Successful login — clear any prior failed attempts
+  if (user.failedLoginAttempts > 0 || user.lockedUntil) {
+    await db.user.update({
+      where: { id: user.id },
+      data: { failedLoginAttempts: 0, lockedUntil: null },
+    });
   }
 
   const token = await signSession({

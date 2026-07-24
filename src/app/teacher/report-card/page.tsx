@@ -18,6 +18,8 @@ type ReportCardData = {
   classTeacherName: string | null;
   classTeacherComment: string | null;
   headmasterComment: string | null;
+  weightKg: number | null;
+  heightCm: number | null;
 } | null;
 
 const EMPTY_FORM = {
@@ -29,6 +31,8 @@ const EMPTY_FORM = {
   classTeacherName: "",
   classTeacherComment: "",
   headmasterComment: "",
+  weightKg: "",
+  heightCm: "",
 };
 
 export default function TeacherReportCardPage() {
@@ -118,6 +122,8 @@ export default function TeacherReportCardPage() {
           classTeacherName: rc?.classTeacherName || "",
           classTeacherComment: rc?.classTeacherComment || "",
           headmasterComment: rc?.headmasterComment || "",
+          weightKg: rc?.weightKg != null ? String(rc.weightKg) : "",
+          heightCm: rc?.heightCm != null ? String(rc.heightCm) : "",
         });
         setPsychomotor(rc?.psychomotor || {});
         setAffective(rc?.affective || {});
@@ -154,6 +160,8 @@ export default function TeacherReportCardPage() {
         classTeacherName: form.classTeacherName || null,
         classTeacherComment: form.classTeacherComment || null,
         headmasterComment: form.headmasterComment || null,
+        weightKg: form.weightKg === "" ? null : Number(form.weightKg),
+        heightCm: form.heightCm === "" ? null : Number(form.heightCm),
       }),
     });
     const data = await res.json();
@@ -356,6 +364,38 @@ export default function TeacherReportCardPage() {
             values={affective}
             onChange={(label, value) => setAffective((prev) => ({ ...prev, [label]: value }))}
           />
+
+          <div className="mb-6">
+            <p className="font-display text-lg text-bistre font-semibold mb-2">
+              5. Weight &amp; Height
+            </p>
+            <div className="grid grid-cols-2 gap-3 max-w-sm">
+              <label className="text-xs text-vandyke">
+                Weight (kg)
+                <input
+                  type="number"
+                  step="0.1"
+                  min={0}
+                  disabled={isLocked}
+                  value={form.weightKg}
+                  onChange={(e) => updateForm("weightKg", e.target.value)}
+                  className="mt-1 w-full border border-taupe/50 rounded px-2 py-1.5 bg-white/60 disabled:opacity-50"
+                />
+              </label>
+              <label className="text-xs text-vandyke">
+                Height (cm)
+                <input
+                  type="number"
+                  step="0.1"
+                  min={0}
+                  disabled={isLocked}
+                  value={form.heightCm}
+                  onChange={(e) => updateForm("heightCm", e.target.value)}
+                  className="mt-1 w-full border border-taupe/50 rounded px-2 py-1.5 bg-white/60 disabled:opacity-50"
+                />
+              </label>
+            </div>
+          </div>
 
           <div className="mb-6 grid gap-3 max-w-xl">
             <label className="text-xs text-vandyke">
