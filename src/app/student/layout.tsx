@@ -1,11 +1,10 @@
 import DashboardShell from "@/components/shared/DashboardShell";
-import { LayoutDashboard, Award, FileText, Settings } from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/student", label: "Overview", icon: LayoutDashboard },
-  { href: "/student/results", label: "My Results", icon: Award },
-  { href: "/student/report-card", label: "Report Card", icon: FileText },
-  { href: "/student/account", label: "Account", icon: Settings },
+  { href: "/student", label: "Overview", icon: "dashboard" as const },
+  { href: "/student/results", label: "My Results", icon: "award" as const },
+  { href: "/student/report-card", label: "Report Card", icon: "reportCards" as const },
+  { href: "/student/account", label: "Account", icon: "settings" as const },
 ];
 
 export default function StudentLayout({

@@ -4,11 +4,42 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/admin/LogoutButton";
+import {
+  LayoutDashboard,
+  GraduationCap,
+  BookOpen,
+  CalendarRange,
+  Users,
+  UserRound,
+  FileText,
+  Settings,
+  ClipboardList,
+  Award,
+} from "lucide-react";
+
+// Icons are resolved here, client-side, from a plain string key. Passing the
+// actual icon *component* as a prop from a Server Component layout would
+// break the build — React can't serialize a function/component reference
+// across the server→client boundary.
+const ICON_MAP = {
+  dashboard: LayoutDashboard,
+  classes: GraduationCap,
+  subjects: BookOpen,
+  terms: CalendarRange,
+  teachers: Users,
+  students: UserRound,
+  reportCards: FileText,
+  settings: Settings,
+  results: ClipboardList,
+  award: Award,
+} as const;
+
+export type NavIconKey = keyof typeof ICON_MAP;
 
 export type NavItem = {
   href: string;
   label: string;
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: NavIconKey;
 };
 
 export default function DashboardShell({
@@ -36,7 +67,7 @@ export default function DashboardShell({
       <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           const active = pathname === item.href;
-          const Icon = item.icon;
+          const Icon = item.icon ? ICON_MAP[item.icon] : null;
           return (
             <Link
               key={item.href}
