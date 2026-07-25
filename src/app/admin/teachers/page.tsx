@@ -87,6 +87,21 @@ export default function TeachersPage() {
     load();
   }
 
+  async function handleResetPassword(teacherId: string, email: string) {
+    if (!confirm(`Reset this teacher's password? Their current password will stop working immediately.`))
+      return;
+    setError(null);
+    const res = await fetch(`/api/admin/teachers/${teacherId}/reset-password`, {
+      method: "PATCH",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error);
+      return;
+    }
+    setNewCredentials({ email, tempPassword: data.tempPassword });
+  }
+
   async function handleAssign(teacherId: string) {
     const form = assignForm[teacherId];
     const subjectIds = Array.from(form?.subjectIds || []);
@@ -210,8 +225,7 @@ export default function TeachersPage() {
       {newCredentials && (
         <div className="bg-status-pass/10 border border-status-pass/30 rounded-lg px-4 py-3 mb-8 text-sm">
           <p className="text-bistre font-medium mb-1">
-            Account created — share these credentials with the teacher now.
-            This password won't be shown again.
+            Share these credentials with the teacher now — this won't be shown again.
           </p>
           <p className="font-mono text-vandyke">
             {newCredentials.email} / {newCredentials.tempPassword}
@@ -255,6 +269,12 @@ export default function TeachersPage() {
                     <p className="text-vandyke text-sm">{t.user.email}</p>
                   </div>
                 </div>
+                <button
+                  onClick={() => handleResetPassword(t.id, t.user.email)}
+                  className="text-xs text-vandyke hover:text-bistre underline whitespace-nowrap"
+                >
+                  Reset password
+                </button>
               </div>
 
               {t.assignments.length > 0 && (

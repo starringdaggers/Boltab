@@ -76,6 +76,21 @@ export default function StudentsPage() {
     load();
   }
 
+  async function handleResetPassword(studentId: string, email: string) {
+    if (!confirm(`Reset this student's password? Their current password will stop working immediately.`))
+      return;
+    setError(null);
+    const res = await fetch(`/api/admin/students/${studentId}/reset-password`, {
+      method: "PATCH",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error);
+      return;
+    }
+    setNewCredentials({ email, tempPassword: data.tempPassword });
+  }
+
   async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -162,7 +177,7 @@ export default function StudentsPage() {
       {newCredentials && (
         <div className="bg-status-pass/10 border border-status-pass/30 rounded-lg px-4 py-3 mb-8 text-sm">
           <p className="text-bistre font-medium mb-1">
-            Account created — share these credentials with the student now.
+            Share these credentials with the student now — this won't be shown again.
           </p>
           <p className="font-mono text-vandyke">
             {newCredentials.email} / {newCredentials.tempPassword}
@@ -302,6 +317,7 @@ function StudentsRoster({
                   <th className="py-2 font-medium">Admission No.</th>
                   <th className="py-2 font-medium">Class</th>
                   <th className="py-2 font-medium">Email</th>
+                  <th className="py-2 font-medium">&nbsp;</th>
                 </tr>
               </thead>
               <tbody>
@@ -316,6 +332,14 @@ function StudentsRoster({
                     <td className="py-2 font-mono text-vandyke">{s.admissionNo}</td>
                     <td className="py-2 text-vandyke">{s.class.name}</td>
                     <td className="py-2 text-vandyke">{s.user.email}</td>
+                    <td className="py-2">
+                      <button
+                        onClick={() => handleResetPassword(s.id, s.user.email)}
+                        className="text-xs text-vandyke hover:text-bistre underline whitespace-nowrap"
+                      >
+                        Reset password
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

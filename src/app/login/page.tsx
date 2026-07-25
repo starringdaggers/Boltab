@@ -38,7 +38,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen w-full flex items-center justify-center bg-vandyke p-4 sm:p-8">
+    <main className="min-h-screen w-full flex items-center justify-center bg-[#241640] p-4 sm:p-8">
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 rounded-[2rem] overflow-hidden shadow-2xl">
         {/* Left panel — brand + signature illustration (hidden on mobile) */}
         <div className="hidden md:flex relative flex-col justify-between bg-ocean-sunset overflow-hidden px-10 py-12">
@@ -84,30 +84,30 @@ export default function LoginPage() {
 
               {/* small potted plant */}
               <g>
-                <path d="M18 176h20l-3 26H21l-3-26Z" fill="#7C97A0" />
+                <path d="M18 176h20l-3 26H21l-3-26Z" fill="#9585AC" />
                 <path d="M28 176c0-14-16-18-16-30 10 0 16 12 16 22 0-16 14-22 22-18-2 14-14 20-22 26Z" fill="#4C7A5E" />
               </g>
 
               {/* desk */}
-              <rect x="60" y="150" width="190" height="10" rx="3" fill="#7C97A0" />
-              <rect x="70" y="160" width="8" height="40" fill="#66808A" />
-              <rect x="222" y="160" width="8" height="40" fill="#66808A" />
+              <rect x="60" y="150" width="190" height="10" rx="3" fill="#9585AC" />
+              <rect x="70" y="160" width="8" height="40" fill="#6B5B8A" />
+              <rect x="222" y="160" width="8" height="40" fill="#6B5B8A" />
 
               {/* stacked books on the desk */}
               <g>
-                <rect x="196" y="128" width="46" height="11" rx="2" fill="#2C5364" transform="rotate(-3 196 128)" />
+                <rect x="196" y="128" width="46" height="11" rx="2" fill="#4B2E82" transform="rotate(-3 196 128)" />
                 <rect x="198" y="116" width="42" height="11" rx="2" fill="#F4F2ED" opacity="0.9" transform="rotate(2 198 116)" />
-                <rect x="200" y="104" width="38" height="11" rx="2" fill="#7C97A0" transform="rotate(-2 200 104)" />
+                <rect x="200" y="104" width="38" height="11" rx="2" fill="#9585AC" transform="rotate(-2 200 104)" />
               </g>
 
               {/* student, seated behind the desk */}
               <g>
                 {/* far arm resting on desk */}
-                <rect x="128" y="132" width="34" height="12" rx="6" fill="#1D3A46" />
+                <rect x="128" y="132" width="34" height="12" rx="6" fill="#2E1C4E" />
                 {/* torso */}
-                <path d="M104 150c0-30 20-46 46-46s46 16 46 46" fill="#2C5364" />
+                <path d="M104 150c0-30 20-46 46-46s46 16 46 46" fill="#4B2E82" />
                 {/* near arm resting on the open book */}
-                <rect x="118" y="136" width="36" height="12" rx="6" fill="#234353" />
+                <rect x="118" y="136" width="36" height="12" rx="6" fill="#3B2469" />
                 {/* head */}
                 <circle cx="150" cy="86" r="22" fill="#F4F2ED" />
                 {/* simple hair */}
@@ -119,7 +119,7 @@ export default function LoginPage() {
               {/* open book in front of the student */}
               <path d="M112 150c10-6 22-6 32 0v14c-10-6-22-6-32 0Z" fill="#F4F2ED" />
               <path d="M176 150c-10-6-22-6-32 0v14c10-6 22-6 32 0Z" fill="#F4F2ED" opacity="0.85" />
-              <path d="M144 150v14" stroke="#7C97A0" strokeWidth="1.5" />
+              <path d="M144 150v14" stroke="#9585AC" strokeWidth="1.5" />
             </svg>
           </div>
         </div>

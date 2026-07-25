@@ -41,6 +41,8 @@ export default function AdminFeesPage() {
 
   const [feeForm, setFeeForm] = useState({ classId: "", termId: "", amount: "" });
   const [savingFee, setSavingFee] = useState(false);
+  const [editingFeeId, setEditingFeeId] = useState<string | null>(null);
+  const [feeMessage, setFeeMessage] = useState<string | null>(null);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -99,6 +101,8 @@ export default function AdminFeesPage() {
     e.preventDefault();
     if (!feeForm.classId || !feeForm.termId || !feeForm.amount) return;
     setSavingFee(true);
+    setFeeMessage(null);
+    const wasEditing = !!editingFeeId;
     const res = await fetch("/api/admin/class-fees", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -115,7 +119,25 @@ export default function AdminFeesPage() {
       return;
     }
     setFeeForm({ classId: "", termId: "", amount: "" });
+    setEditingFeeId(null);
+    setFeeMessage(wasEditing ? "Fee updated." : "Fee set.");
     load();
+  }
+
+  function startEditFee(cf: ClassFeeRow) {
+    setFeeMessage(null);
+    setEditingFeeId(cf.id);
+    setFeeForm({
+      classId: cf.class.id,
+      termId: cf.term.id,
+      amount: String(cf.amount),
+    });
+    document.getElementById("class-fee-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function cancelEditFee() {
+    setEditingFeeId(null);
+    setFeeForm({ classId: "", termId: "", amount: "" });
   }
 
   return (
@@ -225,15 +247,34 @@ export default function AdminFeesPage() {
                     <span className="text-bistre">
                       {cf.class.name} · {cf.term.name} — {cf.term.academicYear}
                     </span>
-                    <span className="text-vandyke font-medium">{naira(cf.amount)}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-vandyke font-medium">{naira(cf.amount)}</span>
+                      <button
+                        onClick={() => startEditFee(cf)}
+                        className="text-xs text-vandyke hover:text-bistre underline"
+                      >
+                        Edit
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
             )}
+            {feeMessage && (
+              <p className="text-sm text-status-pass bg-status-pass/10 border border-status-pass/30 rounded-lg px-3 py-2 mb-3 inline-block">
+                {feeMessage}
+              </p>
+            )}
             <form
+              id="class-fee-form"
               onSubmit={handleSetFee}
               className="bg-white/40 border border-taupe/30 rounded-lg p-4 flex flex-wrap gap-3 items-end"
             >
+              {editingFeeId && (
+                <p className="text-xs text-vandyke w-full">
+                  Editing an existing fee — saving will overwrite the amount above.
+                </p>
+              )}
               <select
                 value={feeForm.classId}
                 onChange={(e) => setFeeForm((p) => ({ ...p, classId: e.target.value }))}
@@ -275,8 +316,17 @@ export default function AdminFeesPage() {
                 disabled={savingFee}
                 className="bg-vandyke hover:bg-bistre disabled:opacity-50 text-antique rounded-lg px-4 py-2 text-sm transition-colors"
               >
-                {savingFee ? "Saving…" : "Set fee"}
+                {savingFee ? "Saving…" : editingFeeId ? "Update fee" : "Set fee"}
               </button>
+              {editingFeeId && (
+                <button
+                  type="button"
+                  onClick={cancelEditFee}
+                  className="text-sm text-vandyke hover:text-bistre"
+                >
+                  Cancel
+                </button>
+              )}
             </form>
           </section>
         </>

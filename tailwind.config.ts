@@ -48,7 +48,7 @@ const config: Config = {
         mono: ["var(--font-plexmono)", "monospace"],
       },
       backgroundImage: {
-        "ocean-sunset": "linear-gradient(160deg, #0F2027 0%, #2C5364 100%)",
+        "ocean-sunset": "linear-gradient(160deg, #170F26 0%, #6C3FA6 100%)",
       },
       borderRadius: {
         card: "20px",
