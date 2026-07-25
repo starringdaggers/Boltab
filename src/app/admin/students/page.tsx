@@ -253,7 +253,15 @@ export default function StudentsPage() {
       ) : students.length === 0 ? (
         <p className="text-vandyke">No students yet.</p>
       ) : (
-        <StudentsRoster students={students} search={search} setSearch={setSearch} page={page} setPage={setPage} pageSize={PAGE_SIZE} />
+        <StudentsRoster
+          students={students}
+          search={search}
+          setSearch={setSearch}
+          page={page}
+          setPage={setPage}
+          pageSize={PAGE_SIZE}
+          onResetPassword={handleResetPassword}
+        />
       )}
     </div>
   );
@@ -266,6 +274,7 @@ function StudentsRoster({
   page,
   setPage,
   pageSize,
+  onResetPassword,
 }: {
   students: StudentRow[];
   search: string;
@@ -273,6 +282,7 @@ function StudentsRoster({
   page: number;
   setPage: (p: number) => void;
   pageSize: number;
+  onResetPassword: (studentId: string, email: string) => void;
 }) {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -334,7 +344,7 @@ function StudentsRoster({
                     <td className="py-2 text-vandyke">{s.user.email}</td>
                     <td className="py-2">
                       <button
-                        onClick={() => handleResetPassword(s.id, s.user.email)}
+                        onClick={() => onResetPassword(s.id, s.user.email)}
                         className="text-xs text-vandyke hover:text-bistre underline whitespace-nowrap"
                       >
                         Reset password
