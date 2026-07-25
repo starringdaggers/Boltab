@@ -5,7 +5,7 @@ import { requireRole } from "@/lib/session";
 
 const assignSchema = z.object({
   classId: z.string().min(1),
-  subjectId: z.string().min(1),
+  subjectIds: z.array(z.string().min(1)).min(1),
 });
 
 export async function POST(
@@ -17,78 +17,64 @@ export async function POST(
 
   const parsed = assignSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Select a class and subject." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Select a class and at least one subject." },
+      { status: 400 }
+    );
   }
+  const { classId, subjectIds } = parsed.data;
 
-  // Bulk mode: assign every subject that exists for this class in one go
-  if (parsed.data.subjectId === "ALL") {
-    const allSubjects: { id: string }[] = await db.subject.findMany({
-      select: { id: true },
-    });
-    const alreadyAssigned: { subjectId: string }[] = await db.teacherAssignment.findMany({
-      where: { teacherId: params.id, classId: parsed.data.classId },
-      select: { subjectId: true },
-    });
-    const assignedSet = new Set(alreadyAssigned.map((a) => a.subjectId));
-    const toCreate = allSubjects.filter((s) => !assignedSet.has(s.id));
-
-    if (toCreate.length === 0) {
-      return NextResponse.json(
-        { error: "Already assigned to every subject for this class." },
-        { status: 409 }
-      );
-    }
-
-    await db.teacherAssignment.createMany({
-      data: toCreate.map((s) => ({
-        teacherId: params.id,
-        classId: parsed.data.classId,
-        subjectId: s.id,
-      })),
-    });
-
-    return NextResponse.json({ created: toCreate.length }, { status: 201 });
-  }
-
-  const existing = await db.teacherAssignment.findUnique({
-    where: {
-      teacherId_classId_subjectId: {
-        teacherId: params.id,
-        classId: parsed.data.classId,
-        subjectId: parsed.data.subjectId,
-      },
-    },
+  const alreadyAssigned: { subjectId: string }[] = await db.teacherAssignment.findMany({
+    where: { teacherId: params.id, classId },
+    select: { subjectId: true },
   });
-  if (existing) {
-    return NextResponse.json({ error: "Already assigned." }, { status: 409 });
+  const assignedSet = new Set(alreadyAssigned.map((a) => a.subjectId));
+  const toCreate = subjectIds.filter((id) => !assignedSet.has(id));
+
+  if (toCreate.length === 0) {
+    return NextResponse.json(
+      { error: "Already assigned to every subject you selected for this class." },
+      { status: 409 }
+    );
   }
 
-  const assignment = await db.teacherAssignment
-    .create({
-      data: {
-        teacherId: params.id,
-        classId: parsed.data.classId,
-        subjectId: parsed.data.subjectId,
-      },
-      include: { class: true, subject: true },
-    })
-    .catch(() => null);
+  await db.teacherAssignment.createMany({
+    data: toCreate.map((subjectId) => ({
+      teacherId: params.id,
+      classId,
+      subjectId,
+    })),
+  });
 
-  if (!assignment) {
-    return NextResponse.json({ error: "Couldn't create assignment." }, { status: 400 });
-  }
-  return NextResponse.json({ assignment }, { status: 201 });
+  return NextResponse.json({ created: toCreate.length }, { status: 201 });
 }
 
-export async function DELETE(req: NextRequest) {
+const deleteSchema = z.object({
+  // Accept either a single id (older clients) or a list (bulk delete from checkboxes)
+  assignmentId: z.string().min(1).optional(),
+  assignmentIds: z.array(z.string().min(1)).optional(),
+});
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const session = await requireRole("ADMIN");
   if (!session) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
 
-  const { assignmentId } = await req.json().catch(() => ({ assignmentId: null }));
-  if (!assignmentId) {
-    return NextResponse.json({ error: "Missing assignment id." }, { status: 400 });
+  const parsed = deleteSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  await db.teacherAssignment.delete({ where: { id: assignmentId } }).catch(() => null);
-  return NextResponse.json({ ok: true });
+  const ids = parsed.data.assignmentIds || (parsed.data.assignmentId ? [parsed.data.assignmentId] : []);
+  if (ids.length === 0) {
+    return NextResponse.json({ error: "No assignments selected." }, { status: 400 });
+  }
+
+  const result = await db.teacherAssignment.deleteMany({
+    where: { id: { in: ids }, teacherId: params.id },
+  });
+
+  return NextResponse.json({ deleted: result.count });
 }

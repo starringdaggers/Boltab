@@ -125,15 +125,15 @@ export default function LoginPage() {
         </div>
 
         {/* Right panel — the form, on a clean light background */}
-        <div className="flex items-center justify-center bg-antique px-6 py-14 sm:px-12">
+        <div className="flex items-center justify-center bg-bistre px-6 py-14 sm:px-12">
           <div className="w-full max-w-sm">
-            <p className="md:hidden font-mono text-xs tracking-[0.2em] text-vandyke uppercase mb-3">
+            <p className="md:hidden font-mono text-xs tracking-[0.2em] text-taupe uppercase mb-3">
               Boltab Brilliant Schools
             </p>
-            <h2 className="font-display text-3xl text-bistre font-semibold mb-2">
+            <h2 className="font-display text-3xl text-antique font-semibold mb-2">
               Welcome back
             </h2>
-            <p className="text-vandyke mb-10">
+            <p className="text-taupe mb-10">
               Sign in to view or manage results.
             </p>
 
@@ -141,7 +141,7 @@ export default function LoginPage() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm text-vandyke mb-1.5"
+                  className="block text-sm text-taupe mb-1.5"
                 >
                   Email address
                 </label>
@@ -151,7 +151,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border-b border-taupe/60 text-bistre placeholder:text-vandyke/40 py-2 focus:border-choc transition-colors outline-none"
+                  className="w-full bg-transparent border-b border-taupe/40 text-antique placeholder:text-taupe/40 py-2 focus:border-choc transition-colors outline-none"
                   placeholder="you@boltabschools.edu"
                   autoComplete="email"
                 />
@@ -160,7 +160,7 @@ export default function LoginPage() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm text-vandyke mb-1.5"
+                  className="block text-sm text-taupe mb-1.5"
                 >
                   Password
                 </label>
@@ -171,14 +171,14 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent border-b border-taupe/60 text-bistre py-2 pr-10 focus:border-choc transition-colors outline-none"
+                    className="w-full bg-transparent border-b border-taupe/40 text-antique py-2 pr-10 focus:border-choc transition-colors outline-none"
                     placeholder="••••••••"
                     autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 text-vandyke/70 hover:text-bistre transition-colors p-1"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 text-taupe/70 hover:text-antique transition-colors p-1"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
@@ -209,7 +209,7 @@ export default function LoginPage() {
               <div className="flex justify-end">
                 <a
                   href="/forgot-password"
-                  className="text-sm text-vandyke hover:text-bistre transition-colors"
+                  className="text-sm text-taupe hover:text-antique transition-colors"
                 >
                   Forgot password?
                 </a>
@@ -224,7 +224,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p className="text-sm text-vandyke mt-8 text-center">
+            <p className="text-sm text-taupe mt-8 text-center">
               Trouble accessing your account? Contact the school office.
             </p>
           </div>

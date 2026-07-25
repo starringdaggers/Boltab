@@ -31,10 +31,17 @@ export default function TeachersPage() {
     tempPassword: string;
   } | null>(null);
 
-  // Per-teacher assignment form state, keyed by teacher id
+  // Per-teacher "assign" form state, keyed by teacher id: chosen class + which subject checkboxes are ticked
   const [assignForm, setAssignForm] = useState<
-    Record<string, { classId: string; subjectId: string }>
+    Record<string, { classId: string; subjectIds: Set<string> }>
   >({});
+  const [assigning, setAssigning] = useState<string | null>(null);
+
+  // Per-teacher bulk-delete selection state: which existing assignment chips are checked
+  const [selectedForRemoval, setSelectedForRemoval] = useState<
+    Record<string, Set<string>>
+  >({});
+  const [removing, setRemoving] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -82,13 +89,16 @@ export default function TeachersPage() {
 
   async function handleAssign(teacherId: string) {
     const form = assignForm[teacherId];
-    if (!form?.classId || !form?.subjectId) return;
+    const subjectIds = Array.from(form?.subjectIds || []);
+    if (!form?.classId || subjectIds.length === 0) return;
+    setAssigning(teacherId);
     const res = await fetch(`/api/admin/teachers/${teacherId}/assignments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ classId: form.classId, subjectIds }),
     });
     const data = await res.json();
+    setAssigning(null);
     if (!res.ok) {
       alert(data.error);
       return;
@@ -96,16 +106,50 @@ export default function TeachersPage() {
     if (typeof data.created === "number") {
       alert(`Assigned ${data.created} subject(s) for this class.`);
     }
-    setAssignForm((prev) => ({ ...prev, [teacherId]: { classId: "", subjectId: "" } }));
+    setAssignForm((prev) => ({ ...prev, [teacherId]: { classId: form.classId, subjectIds: new Set() } }));
     load();
   }
 
-  async function handleUnassign(teacherId: string, assignmentId: string) {
+  function toggleSubjectCheckbox(teacherId: string, subjectId: string) {
+    setAssignForm((prev) => {
+      const current = prev[teacherId] || { classId: "", subjectIds: new Set<string>() };
+      const next = new Set(current.subjectIds);
+      if (next.has(subjectId)) next.delete(subjectId);
+      else next.add(subjectId);
+      return { ...prev, [teacherId]: { ...current, subjectIds: next } };
+    });
+  }
+
+  function toggleSelectAllSubjects(teacherId: string) {
+    setAssignForm((prev) => {
+      const current = prev[teacherId] || { classId: "", subjectIds: new Set<string>() };
+      const allSelected = subjects.every((s) => current.subjectIds.has(s.id));
+      const next = allSelected ? new Set<string>() : new Set(subjects.map((s) => s.id));
+      return { ...prev, [teacherId]: { ...current, subjectIds: next } };
+    });
+  }
+
+  function toggleRemovalCheckbox(teacherId: string, assignmentId: string) {
+    setSelectedForRemoval((prev) => {
+      const current = new Set(prev[teacherId] || []);
+      if (current.has(assignmentId)) current.delete(assignmentId);
+      else current.add(assignmentId);
+      return { ...prev, [teacherId]: current };
+    });
+  }
+
+  async function handleBulkRemove(teacherId: string) {
+    const ids = Array.from(selectedForRemoval[teacherId] || []);
+    if (ids.length === 0) return;
+    if (!confirm(`Remove ${ids.length} assignment(s) from this teacher?`)) return;
+    setRemoving(teacherId);
     await fetch(`/api/admin/teachers/${teacherId}/assignments`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ assignmentId }),
+      body: JSON.stringify({ assignmentIds: ids }),
     });
+    setRemoving(null);
+    setSelectedForRemoval((prev) => ({ ...prev, [teacherId]: new Set() }));
     load();
   }
 
@@ -214,67 +258,110 @@ export default function TeachersPage() {
               </div>
 
               {t.assignments.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {t.assignments.map((a) => (
-                    <span
-                      key={a.id}
-                      className="text-xs bg-taupe/20 text-vandyke rounded-full px-3 py-1 flex items-center gap-2"
+                <div className="mb-3">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {t.assignments.map((a) => {
+                      const checked = selectedForRemoval[t.id]?.has(a.id) || false;
+                      return (
+                        <label
+                          key={a.id}
+                          className={`text-xs rounded-full px-3 py-1 flex items-center gap-2 cursor-pointer transition-colors ${
+                            checked
+                              ? "bg-status-fail/15 text-status-fail"
+                              : "bg-taupe/20 text-vandyke"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleRemovalCheckbox(t.id, a.id)}
+                            className="w-3 h-3"
+                          />
+                          {a.class.name} · {a.subject.name}
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {(selectedForRemoval[t.id]?.size || 0) > 0 && (
+                    <button
+                      onClick={() => handleBulkRemove(t.id)}
+                      disabled={removing === t.id}
+                      className="text-xs text-status-fail hover:underline disabled:opacity-50"
                     >
-                      {a.class.name} · {a.subject.name}
-                      <button
-                        onClick={() => handleUnassign(t.id, a.id)}
-                        className="text-status-fail"
-                        aria-label="Remove assignment"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
+                      {removing === t.id
+                        ? "Removing…"
+                        : `Remove ${selectedForRemoval[t.id]?.size} selected`}
+                    </button>
+                  )}
                 </div>
               )}
 
-              <div className="flex gap-2">
+              <div className="border-t border-taupe/20 pt-3">
                 <select
                   value={assignForm[t.id]?.classId || ""}
                   onChange={(e) =>
                     setAssignForm((prev) => ({
                       ...prev,
-                      [t.id]: { ...prev[t.id], classId: e.target.value, subjectId: prev[t.id]?.subjectId || "" },
+                      [t.id]: {
+                        classId: e.target.value,
+                        subjectIds: prev[t.id]?.subjectIds || new Set(),
+                      },
                     }))
                   }
-                  className="border border-taupe/50 rounded-lg px-2 py-1.5 bg-white/60 text-sm"
+                  className="border border-taupe/50 rounded-lg px-2 py-1.5 bg-white/60 text-sm mb-2 w-full sm:w-auto"
                 >
-                  <option value="">Class…</option>
+                  <option value="">Select a class to assign subjects for…</option>
                   {classes.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
                     </option>
                   ))}
                 </select>
-                <select
-                  value={assignForm[t.id]?.subjectId || ""}
-                  onChange={(e) =>
-                    setAssignForm((prev) => ({
-                      ...prev,
-                      [t.id]: { ...prev[t.id], subjectId: e.target.value, classId: prev[t.id]?.classId || "" },
-                    }))
-                  }
-                  className="border border-taupe/50 rounded-lg px-2 py-1.5 bg-white/60 text-sm"
-                >
-                  <option value="">Subject…</option>
-                  <option value="ALL">— All subjects for this class —</option>
-                  {subjects.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => handleAssign(t.id)}
-                  className="text-sm bg-vandyke hover:bg-bistre text-antique rounded-lg px-4 py-1.5 transition-colors"
-                >
-                  Assign
-                </button>
+
+                {assignForm[t.id]?.classId && (
+                  <>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-xs text-vandyke">
+                        Tick every subject this teacher should be able to
+                        enter results for in this class:
+                      </p>
+                      <button
+                        onClick={() => toggleSelectAllSubjects(t.id)}
+                        className="text-xs text-vandyke hover:text-bistre underline whitespace-nowrap ml-2"
+                      >
+                        {subjects.every((s) => assignForm[t.id]?.subjectIds.has(s.id))
+                          ? "Clear all"
+                          : "Select all"}
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 mb-3 max-h-40 overflow-y-auto bg-white/40 border border-taupe/30 rounded-lg p-2">
+                      {subjects.map((s) => (
+                        <label
+                          key={s.id}
+                          className="flex items-center gap-1.5 text-sm text-vandyke cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={assignForm[t.id]?.subjectIds.has(s.id) || false}
+                            onChange={() => toggleSubjectCheckbox(t.id, s.id)}
+                          />
+                          {s.name}
+                        </label>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => handleAssign(t.id)}
+                      disabled={
+                        assigning === t.id || (assignForm[t.id]?.subjectIds.size || 0) === 0
+                      }
+                      className="text-sm bg-vandyke hover:bg-bistre disabled:opacity-50 text-antique rounded-lg px-4 py-1.5 transition-colors"
+                    >
+                      {assigning === t.id
+                        ? "Assigning…"
+                        : `Assign ${assignForm[t.id]?.subjectIds.size || 0} subject(s)`}
+                    </button>
+                  </>
+                )}
               </div>
             </li>
           ))}

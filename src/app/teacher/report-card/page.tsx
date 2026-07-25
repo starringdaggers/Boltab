@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { PSYCHOMOTOR_SKILLS, AFFECTIVE_TRAITS, RATING_SCALE } from "@/lib/reportCardFields";
 import DateField from "@/components/shared/DateField";
 
@@ -347,6 +348,20 @@ export default function TeacherReportCardPage() {
                 onChange={(value) => updateForm("nextTermBegins", value)}
               />
             </div>
+          </div>
+
+          <div className="mb-6 bg-taupe/10 border border-taupe/30 rounded-lg px-4 py-3">
+            <p className="font-display text-lg text-bistre font-semibold mb-1">
+              2. Cognitive Ability
+            </p>
+            <p className="text-sm text-vandyke">
+              Subject scores (1st Half, 2nd Half, Examination) are entered
+              per-subject on the{" "}
+              <Link href="/teacher/results" className="underline hover:text-bistre">
+                Enter Results
+              </Link>{" "}
+              page, not here.
+            </p>
           </div>
 
           <RatingGrid

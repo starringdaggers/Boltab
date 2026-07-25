@@ -32,7 +32,25 @@ model User {
   student Student?
   teacher Teacher?
 
+  timetablesCreated Timetable[]
+
   @@map("users")
+}
+
+// A flexible grid-based timetable or roster, built freely by admin with
+// any number of rows/columns. Read-only for teachers and students.
+model Timetable {
+  id      String @id @default(cuid())
+  title   String // e.g. "Boltab-Basic 6 — Weekly Timetable" or "Staff Duty Roster"
+  columns Json   // array of column header strings
+  rows    Json   // array of rows, each an array of cell strings (same length as columns)
+
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("timetables")
 }
 
 model Student {
