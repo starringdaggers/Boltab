@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 
 type Option = { id: string; name: string };
 type Term = { id: string; name: string; academicYear: string; resultsReleased: boolean };
-type RosterEntry = { studentId: string; name: string; admissionNo: string; isWithheld: boolean };
+type RosterEntry = {
+  studentId: string;
+  name: string;
+  admissionNo: string;
+  isWithheld: boolean;
+  feeBalance: number | null;
+};
 
 export default function AdminReportCardsPage() {
   const [classes, setClasses] = useState<Option[]>([]);
@@ -165,6 +171,17 @@ export default function AdminReportCardsPage() {
               <div>
                 <span className="text-bistre font-medium">{r.name}</span>
                 <span className="text-vandyke text-sm font-mono ml-2">{r.admissionNo}</span>
+                {r.feeBalance !== null && (
+                  <span
+                    className={`block text-xs mt-0.5 ${
+                      r.feeBalance > 0 ? "text-status-fail" : "text-status-pass"
+                    }`}
+                  >
+                    {r.feeBalance > 0
+                      ? `₦${r.feeBalance.toLocaleString("en-NG")} owed`
+                      : "Fees fully paid"}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-3">
                 <span

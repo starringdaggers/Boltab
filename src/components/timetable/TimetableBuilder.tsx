@@ -16,13 +16,17 @@ export default function TimetableBuilder({
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(initialTitle || "");
+  const DEFAULT_COLUMNS = ["Time", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   const [columns, setColumns] = useState<string[]>(
-    initialColumns && initialColumns.length > 0 ? initialColumns : ["Monday", "Tuesday"]
+    initialColumns && initialColumns.length > 0 ? initialColumns : DEFAULT_COLUMNS
   );
   const [rows, setRows] = useState<string[][]>(
     initialRows && initialRows.length > 0
       ? initialRows
-      : [Array(columns.length).fill("")]
+      : [
+          ["8:00 – 8:40am", "", "", "", "", ""].slice(0, columns.length),
+          ["8:40 – 9:20am", "", "", "", "", ""].slice(0, columns.length),
+        ]
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -156,6 +160,7 @@ export default function TimetableBuilder({
                     <input
                       value={cell}
                       onChange={(e) => updateCell(ri, ci, e.target.value)}
+                      placeholder={ci === 0 ? "e.g. 8:00 – 8:40am" : "Subject / entry"}
                       className="w-32 border border-taupe/50 rounded px-2 py-1.5 bg-white/60 text-sm"
                     />
                   </td>

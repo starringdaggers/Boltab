@@ -24,19 +24,42 @@ export async function GET(req: NextRequest) {
       include: { user: { select: { name: true } } },
       orderBy: { user: { name: "asc" } },
     });
+  // Belt-and-braces: guarantee correct alphabetical order in JS regardless
+  // of the database's collation settings.
+  students.sort((a, b) => a.user.name.localeCompare(b.user.name));
 
-  const reportCards = await db.reportCard.findMany({
-    where: { termId, studentId: { in: students.map((s) => s.id) } },
-    select: { studentId: true, isWithheld: true },
-  });
+  const [reportCards, classFee, payments] = await Promise.all([
+    db.reportCard.findMany({
+      where: { termId, studentId: { in: students.map((s) => s.id) } },
+      select: { studentId: true, isWithheld: true },
+    }),
+    db.classFee.findUnique({ where: { classId_termId: { classId, termId } } }),
+    db.feePayment.findMany({
+      where: {
+        termId,
+        studentId: { in: students.map((s) => s.id) },
+        status: "APPROVED",
+      },
+      select: { studentId: true, amountClaimed: true },
+    }),
+  ]);
   const withheldByStudentId = new Map(reportCards.map((r) => [r.studentId, r.isWithheld]));
+  const paidByStudentId = new Map<string, number>();
+  for (const p of payments) {
+    paidByStudentId.set(p.studentId, (paidByStudentId.get(p.studentId) || 0) + p.amountClaimed);
+  }
 
-  const roster = students.map((s) => ({
-    studentId: s.id,
-    name: s.user.name,
-    admissionNo: s.admissionNo,
-    isWithheld: withheldByStudentId.get(s.id) || false,
-  }));
+  const roster = students.map((s) => {
+    const paid = paidByStudentId.get(s.id) || 0;
+    const feeBalance = classFee ? Math.max(0, classFee.amount - paid) : null;
+    return {
+      studentId: s.id,
+      name: s.user.name,
+      admissionNo: s.admissionNo,
+      isWithheld: withheldByStudentId.get(s.id) || false,
+      feeBalance,
+    };
+  });
 
   return NextResponse.json({ roster, term });
 }

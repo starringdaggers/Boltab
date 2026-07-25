@@ -19,6 +19,10 @@ export async function GET(req: NextRequest) {
     },
     orderBy: { user: { name: "asc" } },
   });
+  // Belt-and-braces: re-sort in JS with a locale-aware comparator so
+  // alphabetical order (A→Z, including compound/multi-letter names) is
+  // correct regardless of the database's collation settings.
+  students.sort((a, b) => a.user.name.localeCompare(b.user.name));
   return NextResponse.json({ students });
 }
 

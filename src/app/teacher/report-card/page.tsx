@@ -21,6 +21,8 @@ type ReportCardData = {
   headmasterComment: string | null;
   weightKg: number | null;
   heightCm: number | null;
+  isComplete: boolean;
+  completedAt: string | null;
 } | null;
 
 const EMPTY_FORM = {
@@ -54,7 +56,15 @@ export default function TeacherReportCardPage() {
   const [loadingRoster, setLoadingRoster] = useState(false);
   const [loadingStudent, setLoadingStudent] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [completing, setCompleting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const [subjectsEntered, setSubjectsEntered] = useState(0);
+  const [totalScored, setTotalScored] = useState(0);
+  const [totalObtainable, setTotalObtainable] = useState(0);
+  const [overallPercentage, setOverallPercentage] = useState<number | null>(null);
+  const [isComplete, setIsComplete] = useState(false);
+  const [completedAt, setCompletedAt] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadOptions() {
@@ -128,6 +138,12 @@ export default function TeacherReportCardPage() {
         });
         setPsychomotor(rc?.psychomotor || {});
         setAffective(rc?.affective || {});
+        setSubjectsEntered(data.subjectsEntered || 0);
+        setTotalScored(data.totalScored || 0);
+        setTotalObtainable(data.totalObtainable || 0);
+        setOverallPercentage(data.overallPercentage);
+        setIsComplete(rc?.isComplete || false);
+        setCompletedAt(rc?.completedAt || null);
       } catch {
         setMessage({ type: "error", text: "Couldn't reach the server. Check your connection and try again." });
       } finally {
@@ -141,9 +157,10 @@ export default function TeacherReportCardPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
-  async function handleSave() {
+  async function handleSave(markComplete?: boolean) {
     if (!selectedStudentId || !selectedTermId) return;
-    setSaving(true);
+    if (markComplete) setCompleting(true);
+    else setSaving(true);
     setMessage(null);
     const res = await fetch("/api/teacher/report-card", {
       method: "POST",
@@ -163,15 +180,28 @@ export default function TeacherReportCardPage() {
         headmasterComment: form.headmasterComment || null,
         weightKg: form.weightKg === "" ? null : Number(form.weightKg),
         heightCm: form.heightCm === "" ? null : Number(form.heightCm),
+        ...(markComplete !== undefined ? { markComplete } : {}),
       }),
     });
     const data = await res.json();
     setSaving(false);
+    setCompleting(false);
     if (!res.ok) {
       setMessage({ type: "error", text: data.error });
       return;
     }
-    setMessage({ type: "success", text: "Report card details saved." });
+    if (markComplete !== undefined) {
+      setIsComplete(data.reportCard?.isComplete || false);
+      setCompletedAt(data.reportCard?.completedAt || null);
+    }
+    setMessage({
+      type: "success",
+      text: markComplete
+        ? "Report card marked as complete."
+        : markComplete === false
+        ? "Report card reopened for edits."
+        : "Report card details saved.",
+    });
     setRoster((prev) =>
       prev.map((r) => (r.studentId === selectedStudentId ? { ...r, started: true } : r))
     );
@@ -192,6 +222,20 @@ export default function TeacherReportCardPage() {
       <div className="mb-6">
         <p className="font-display text-lg text-bistre font-semibold mb-2">{title}</p>
         <div className="border border-taupe/30 rounded-card overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 text-xs bg-antique/40 border-b border-taupe/30">
+            <span className="text-bistre font-medium">&nbsp;</span>
+            <div className="flex gap-3">
+              {RATING_SCALE.map((r) => (
+                <span
+                  key={r.value}
+                  title={r.label}
+                  className="w-[38px] text-center text-bistre font-medium"
+                >
+                  {r.value}
+                </span>
+              ))}
+            </div>
+          </div>
           {labels.map((label, i) => (
             <div
               key={label}
@@ -202,7 +246,7 @@ export default function TeacherReportCardPage() {
               <span className="text-vandyke">{label}</span>
               <div className="flex gap-3">
                 {RATING_SCALE.map((r) => (
-                  <label key={r.value} className="flex items-center gap-1 cursor-pointer">
+                  <label key={r.value} className="flex items-center justify-center gap-1 cursor-pointer w-[38px]">
                     <input
                       type="radio"
                       name={label}
@@ -210,7 +254,6 @@ export default function TeacherReportCardPage() {
                       checked={values[label] === r.value}
                       onChange={() => onChange(label, r.value)}
                     />
-                    <span className="text-xs text-vandyke">{r.value}</span>
                   </label>
                 ))}
               </div>
@@ -456,14 +499,85 @@ export default function TeacherReportCardPage() {
             </label>
           </div>
 
+          <div className="mb-6 bg-taupe/10 border border-taupe/30 rounded-lg px-4 py-4">
+            <p className="font-display text-lg text-bistre font-semibold mb-2">
+              Overall Summary
+            </p>
+            {subjectsEntered === 0 ? (
+              <p className="text-sm text-vandyke">
+                No subject scores entered yet for this student — the overall
+                percentage will appear here once results are entered on the{" "}
+                <Link href="/teacher/results" className="underline hover:text-bistre">
+                  Enter Results
+                </Link>{" "}
+                page.
+              </p>
+            ) : (
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <p className="text-xs text-vandyke uppercase tracking-wide mb-1">
+                    Total Marks Obtainable
+                  </p>
+                  <p className="font-display text-lg text-bistre font-semibold">
+                    {totalObtainable}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-vandyke uppercase tracking-wide mb-1">
+                    Total Marks Obtained
+                  </p>
+                  <p className="font-display text-lg text-bistre font-semibold">
+                    {totalScored}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-vandyke uppercase tracking-wide mb-1">
+                    Overall Percentage
+                  </p>
+                  <p className="font-display text-lg text-bistre font-semibold">
+                    {overallPercentage !== null ? `${overallPercentage.toFixed(1)}%` : "—"}
+                  </p>
+                </div>
+              </div>
+            )}
+            <p className="text-xs text-vandyke mt-2">
+              Auto-calculated from {subjectsEntered} subject{subjectsEntered === 1 ? "" : "s"}{" "}
+              entered so far — updates automatically as scores change.
+            </p>
+
+            {isComplete && (
+              <p className="text-sm text-status-pass bg-status-pass/10 border border-status-pass/30 rounded-lg px-3 py-2 mt-3">
+                ✓ Marked complete
+                {completedAt ? ` on ${new Date(completedAt).toLocaleDateString()}` : ""}.
+              </p>
+            )}
+          </div>
+
           {!isLocked && (
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="bg-choc hover:bg-choc-dark disabled:opacity-60 text-antique font-medium rounded-lg px-6 py-2.5 transition-colors"
-            >
-              {saving ? "Saving…" : "Save report card details"}
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => handleSave()}
+                disabled={saving}
+                className="bg-choc hover:bg-choc-dark disabled:opacity-60 text-antique font-medium rounded-lg px-6 py-2.5 transition-colors"
+              >
+                {saving ? "Saving…" : "Save report card details"}
+              </button>
+              <button
+                onClick={() => handleSave(!isComplete)}
+                disabled={completing}
+                className={`font-medium rounded-lg px-6 py-2.5 transition-colors ${
+                  isComplete
+                    ? "border border-taupe/50 text-vandyke hover:bg-taupe/10"
+                    : "bg-status-pass/90 hover:bg-status-pass text-white disabled:opacity-60"
+                }`}
+              >
+                {completing
+                  ? "Saving…"
+                  : isComplete
+                  ? "Reopen for edits"
+                  : "Mark as complete"}
+              </button>
+            </div>
           )}
         </>
       ) : null}

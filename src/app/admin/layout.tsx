@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { href: "/admin/students", label: "Students", icon: "students" as const },
   { href: "/admin/report-cards", label: "Report Cards", icon: "reportCards" as const },
   { href: "/admin/timetables", label: "Timetables", icon: "timetable" as const },
+  { href: "/admin/fees", label: "School Fees", icon: "fees" as const },
   { href: "/admin/account", label: "Account", icon: "settings" as const },
 ];
 

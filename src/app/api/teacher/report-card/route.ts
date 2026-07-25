@@ -51,6 +51,9 @@ export async function GET(req: NextRequest) {
       include: { user: { select: { name: true } } },
       orderBy: { user: { name: "asc" } },
     });
+  // Belt-and-braces: guarantee correct alphabetical order in JS regardless
+  // of the database's collation settings.
+  students.sort((a, b) => a.user.name.localeCompare(b.user.name));
 
   const numberOnRoll = students.length;
 
@@ -79,11 +82,25 @@ export async function GET(req: NextRequest) {
     where: { studentId_termId: { studentId, termId } },
   });
 
+  // Live subject totals, computed the same way the student's own report
+  // card does — never stored, so it's always accurate as scores change.
+  const results = await db.result.findMany({
+    where: { studentId, termId },
+    select: { totalScore: true, totalObtainable: true },
+  });
+  const totalScored = results.reduce((sum, r) => sum + r.totalScore, 0);
+  const totalObtainable = results.reduce((sum, r) => sum + r.totalObtainable, 0);
+  const overallPercentage = totalObtainable > 0 ? (totalScored / totalObtainable) * 100 : null;
+
   return NextResponse.json({
     student: { id: student.id, name: student.user.name, admissionNo: student.admissionNo },
     numberOnRoll,
     isLocked: term.isLocked,
     reportCard,
+    subjectsEntered: results.length,
+    totalScored,
+    totalObtainable,
+    overallPercentage,
     fields: { psychomotor: PSYCHOMOTOR_SKILLS, affective: AFFECTIVE_TRAITS },
   });
 }
@@ -105,6 +122,7 @@ const saveSchema = z.object({
   headmasterComment: z.string().max(500).optional().nullable(),
   weightKg: z.number().min(0).max(500).optional().nullable(),
   heightCm: z.number().min(0).max(300).optional().nullable(),
+  markComplete: z.boolean().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -115,7 +133,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid submission." }, { status: 400 });
   }
-  const { studentId, termId, ...fields } = parsed.data;
+  const { studentId, termId, markComplete, ...fields } = parsed.data;
 
   const teacher = await getOwnTeacher(session.userId);
   if (!teacher) {
@@ -156,6 +174,9 @@ export async function POST(req: NextRequest) {
       ? Prisma.JsonNull
       : fields.affective,
     updatedById: teacher.id,
+    ...(markComplete !== undefined
+      ? { isComplete: markComplete, completedAt: markComplete ? new Date() : null }
+      : {}),
   };
 
   const reportCard = await db.reportCard.upsert({

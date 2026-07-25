@@ -33,6 +33,7 @@ model User {
   teacher Teacher?
 
   timetablesCreated Timetable[]
+  reviewedFeePayments FeePayment[]
 
   @@map("users")
 }
@@ -65,6 +66,7 @@ model Student {
 
   results     Result[]
   reportCards ReportCard[]
+  feePayments FeePayment[]
 
   @@map("students")
 }
@@ -102,6 +104,7 @@ model Class {
   students    Student[]
   assignments TeacherAssignment[]
   results     Result[]
+  classFees   ClassFee[]
 
   @@map("classes")
 }
@@ -125,6 +128,8 @@ model Term {
 
   results     Result[]
   reportCards ReportCard[]
+  classFees   ClassFee[]
+  feePayments FeePayment[]
 
   @@unique([name, academicYear])
   @@map("terms")
@@ -197,6 +202,13 @@ model ReportCard {
   // when the term overall has been released to students.
   isWithheld Boolean @default(false)
 
+  // Set when the class teacher clicks "Mark as complete" after filling in
+  // attendance/psychomotor/affective/weight/height. Subject scores and the
+  // overall percentage are always computed live from Result rows — this
+  // flag just tracks whether the teacher has finished reviewing everything.
+  isComplete  Boolean   @default(false)
+  completedAt DateTime?
+
   updatedById String?
   updatedBy   Teacher? @relation(fields: [updatedById], references: [id])
   createdAt   DateTime @default(now())
@@ -204,4 +216,61 @@ model ReportCard {
 
   @@unique([studentId, termId])
   @@map("report_cards")
+}
+
+// Bank account details shown to students for making fee transfers.
+// Admin can list more than one (e.g. different banks).
+model SchoolAccount {
+  id            String   @id @default(cuid())
+  bankName      String
+  accountName   String
+  accountNumber String
+  notes         String? // e.g. "Use your ward's admission number as reference"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("school_accounts")
+}
+
+// The fee amount admin sets for a given class, per term.
+model ClassFee {
+  id      String @id @default(cuid())
+  classId String
+  class   Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
+  termId  String
+  term    Term   @relation(fields: [termId], references: [id], onDelete: Cascade)
+  amount  Float // total fee for this class this term, in Naira
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([classId, termId])
+  @@map("class_fees")
+}
+
+// A student's fee payment claim — full or partial. Stays PENDING until an
+// admin checks the receipt and approves or rejects it; only APPROVED
+// payments count toward the student's paid total/remaining balance.
+model FeePayment {
+  id       String  @id @default(cuid())
+  studentId String
+  student  Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  termId   String
+  term     Term    @relation(fields: [termId], references: [id], onDelete: Cascade)
+
+  amountClaimed Float // what the student says they paid
+  // Receipt stored inline as a base64 data URL — no external file storage
+  // configured for this app yet, so keep uploads small (enforced client-side).
+  receiptDataUrl  String
+  receiptFileName String
+
+  status     String    @default("PENDING") // "PENDING" | "APPROVED" | "REJECTED"
+  adminNote  String?
+  reviewedById String?
+  reviewedBy   User?   @relation(fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?
+
+  submittedAt DateTime @default(now())
+
+  @@map("fee_payments")
 }

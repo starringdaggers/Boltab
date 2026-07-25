@@ -30,6 +30,8 @@ type ReportCardData = {
   headmasterComment: string | null;
   weightKg: number | null;
   heightCm: number | null;
+  isComplete: boolean;
+  completedAt: string | null;
 } | null;
 
 export default function ReportCardView({
@@ -64,6 +66,20 @@ export default function ReportCardView({
         <p className="font-semibold text-bistre text-sm mb-1">{title}</p>
         <div className="overflow-x-auto">
           <table className="w-full text-xs border border-taupe/40 border-collapse min-w-[280px]">
+            <thead>
+              <tr className="bg-antique/40">
+                <th className="px-2 py-1 text-left font-medium text-bistre">&nbsp;</th>
+                {RATING_SCALE.map((r) => (
+                  <th
+                    key={r.value}
+                    className="px-1.5 py-1 text-center font-medium text-bistre border-l border-taupe/20 w-6"
+                    title={r.label}
+                  >
+                    {r.value}
+                  </th>
+                ))}
+              </tr>
+            </thead>
             <tbody>
               {labels.map((label) => (
                 <tr key={label} className="border-b border-taupe/20 last:border-b-0">
@@ -178,6 +194,34 @@ export default function ReportCardView({
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className="mb-5 bg-antique/30 border border-taupe/30 rounded-lg px-4 py-3">
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <p className="text-[10px] text-vandyke uppercase tracking-wide mb-0.5">
+              Total Marks Obtainable
+            </p>
+            <p className="font-display text-base font-semibold">{totalObtainable || "—"}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-vandyke uppercase tracking-wide mb-0.5">
+              Total Marks Obtained
+            </p>
+            <p className="font-display text-base font-semibold">{totalScore || "—"}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-vandyke uppercase tracking-wide mb-0.5">
+              Overall Percentage
+            </p>
+            <p className="font-display text-base font-semibold">
+              {totalObtainable > 0 ? `${((totalScore / totalObtainable) * 100).toFixed(1)}%` : "—"}
+            </p>
+          </div>
+        </div>
+        {reportCard?.isComplete && (
+          <p className="text-xs text-status-pass mt-2">✓ Reviewed and completed by class teacher</p>
+        )}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-5 mb-5">

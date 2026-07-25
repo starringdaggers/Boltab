@@ -62,6 +62,9 @@ export async function GET(req: NextRequest) {
       include: { user: { select: { name: true } } },
       orderBy: { user: { name: "asc" } },
     });
+  // Belt-and-braces: guarantee correct alphabetical order in JS regardless
+  // of the database's collation settings.
+  students.sort((a, b) => a.user.name.localeCompare(b.user.name));
 
   const existingResults: {
     studentId: string;
