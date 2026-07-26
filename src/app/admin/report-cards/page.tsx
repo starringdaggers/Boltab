@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ReportCardView from "@/components/report-card/ReportCardView";
 
 type Option = { id: string; name: string };
 type Term = { id: string; name: string; academicYear: string; resultsReleased: boolean };
@@ -24,6 +25,13 @@ export default function AdminReportCardsPage() {
   const [loadingRoster, setLoadingRoster] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Full report card viewer (admin oversight — same view students see,
+  // reused here, but bypassing the release/withhold gate entirely)
+  const [viewing, setViewing] = useState<{ studentId: string; name: string } | null>(null);
+  const [viewData, setViewData] = useState<any>(null);
+  const [viewLoading, setViewLoading] = useState(false);
+  const [viewError, setViewError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadOptions() {
@@ -98,6 +106,27 @@ export default function AdminReportCardsPage() {
       setError("Couldn't reach the server. Check your connection and try again.");
     } finally {
       setSavingId(null);
+    }
+  }
+
+  async function openFullReport(studentId: string, name: string) {
+    setViewing({ studentId, name });
+    setViewData(null);
+    setViewError(null);
+    setViewLoading(true);
+    try {
+      const params = new URLSearchParams({ studentId, termId: selectedTermId });
+      const res = await fetch(`/api/admin/report-cards/detail?${params}`);
+      const d = await res.json();
+      if (!res.ok) {
+        setViewError(d.error || "Couldn't load this report card.");
+        return;
+      }
+      setViewData(d);
+    } catch {
+      setViewError("Couldn't reach the server. Check your connection and try again.");
+    } finally {
+      setViewLoading(false);
     }
   }
 
@@ -184,6 +213,12 @@ export default function AdminReportCardsPage() {
                 )}
               </div>
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => openFullReport(r.studentId, r.name)}
+                  className="text-sm text-choc hover:underline whitespace-nowrap"
+                >
+                  View full report
+                </button>
                 <span
                   className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${
                     r.isWithheld
@@ -207,6 +242,40 @@ export default function AdminReportCardsPage() {
       ) : selectedClassId && selectedTermId ? (
         <p className="text-vandyke">No students found in this class.</p>
       ) : null}
+
+      {viewing && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-bistre/60 backdrop-blur-sm p-4 sm:p-8">
+          <div className="bg-antique rounded-card max-w-3xl w-full my-8">
+            <div className="flex items-center justify-between px-5 sm:px-8 pt-5 sm:pt-8 print:hidden">
+              <p className="text-vandyke text-sm">Viewing {viewing.name}'s report card</p>
+              <button
+                onClick={() => setViewing(null)}
+                className="text-vandyke hover:text-bistre text-sm"
+              >
+                Close
+              </button>
+            </div>
+
+            {viewLoading && <p className="text-vandyke p-8">Loading…</p>}
+            {viewError && <p className="text-status-fail p-8">{viewError}</p>}
+
+            {viewData && !viewLoading && (
+              <ReportCardView
+                studentName={viewData.student.name}
+                admissionNo={viewData.student.admissionNo}
+                className={viewData.student.className}
+                termName={viewData.term.name}
+                academicYear={viewData.term.academicYear}
+                numberOnRoll={viewData.numberOnRoll}
+                results={viewData.results}
+                reportCard={viewData.reportCard}
+                psychomotorLabels={viewData.fields.psychomotor}
+                affectiveLabels={viewData.fields.affective}
+              />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

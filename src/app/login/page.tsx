@@ -38,7 +38,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen w-full flex items-center justify-center bg-vandyke p-4 sm:p-8">
+    <main className="min-h-screen w-full flex items-center justify-center bg-white p-4 sm:p-8">
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 rounded-[2rem] overflow-hidden shadow-2xl">
         {/* Left panel — brand + signature illustration (hidden on mobile) */}
         <div className="hidden md:flex relative flex-col justify-between bg-ocean-sunset overflow-hidden px-10 py-12">

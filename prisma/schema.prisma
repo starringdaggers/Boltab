@@ -188,11 +188,6 @@ model ReportCard {
   psychomotor Json?
   affective   Json?
 
-  // Physical measurements — shown alongside the affective areas grid on the
-  // report card (item 5), entered by the teacher, visible to admin & student.
-  weightKg Float?
-  heightCm Float?
-
   generalPerformance  String?
   classTeacherName    String?
   classTeacherComment String?
