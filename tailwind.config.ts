@@ -20,8 +20,8 @@ const config: Config = {
           light: "#0B2B26",
         },
         antique: {
-          DEFAULT: "#DAF1DE",
-          dim: "#C3E4CB",
+          DEFAULT: "#FFFFFF",
+          dim: "#F2F2F2",
         },
         taupe: {
           DEFAULT: "#8EB69B",
