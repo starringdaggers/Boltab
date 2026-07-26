@@ -84,8 +84,8 @@ export default function TeacherResultsPage() {
     loadOptions();
   }, []);
 
-  // Subjects are scoped to whichever class is selected — a teacher assigned
-  // Math for one class shouldn't see English from a different class they teach.
+  // Subject choice is the teacher's discretion — the only real gate is
+  // being assigned to the class itself (enforced server-side).
   useEffect(() => {
     async function loadSubjects() {
       const params = selectedClassId ? `?classId=${selectedClassId}` : "";

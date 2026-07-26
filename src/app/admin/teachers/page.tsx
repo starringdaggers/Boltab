@@ -317,6 +317,13 @@ export default function TeachersPage() {
               )}
 
               <div className="border-t border-taupe/20 pt-3">
+                <p className="text-xs text-vandyke mb-2">
+                  Assigning a class grants access to <strong>every subject</strong>{" "}
+                  in that class — the teacher chooses which subject to enter
+                  results for at their own discretion. Ticking specific
+                  subjects below is just for your own record-keeping of who
+                  usually teaches what.
+                </p>
                 <select
                   value={assignForm[t.id]?.classId || ""}
                   onChange={(e) =>
@@ -330,7 +337,7 @@ export default function TeachersPage() {
                   }
                   className="border border-taupe/50 rounded-lg px-2 py-1.5 bg-white/60 text-sm mb-2 w-full sm:w-auto"
                 >
-                  <option value="">Select a class to assign subjects for…</option>
+                  <option value="">Select a class to assign…</option>
                   {classes.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -342,8 +349,8 @@ export default function TeachersPage() {
                   <>
                     <div className="flex items-center justify-between mb-1.5">
                       <p className="text-xs text-vandyke">
-                        Tick every subject this teacher should be able to
-                        enter results for in this class:
+                        Optional — note which subjects this teacher usually
+                        covers in this class:
                       </p>
                       <button
                         onClick={() => toggleSelectAllSubjects(t.id)}

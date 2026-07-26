@@ -13,13 +13,9 @@ async function getOwnTeacher(userId: string) {
   return db.teacher.findUnique({ where: { userId } });
 }
 
-async function isAssignedToClassAndSubject(
-  teacherId: string,
-  classId: string,
-  subjectId: string
-) {
-  const assignment = await db.teacherAssignment.findUnique({
-    where: { teacherId_classId_subjectId: { teacherId, classId, subjectId } },
+async function isAssignedToClass(teacherId: string, classId: string) {
+  const assignment = await db.teacherAssignment.findFirst({
+    where: { teacherId, classId },
   });
   return !!assignment;
 }
@@ -44,9 +40,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Teacher profile not found." }, { status: 404 });
   }
 
-  if (!(await isAssignedToClassAndSubject(teacher.id, classId, subjectId))) {
+  if (!(await isAssignedToClass(teacher.id, classId))) {
     return NextResponse.json(
-      { error: "You haven't been assigned to this class/subject. Ask an admin to assign it to you." },
+      { error: "You haven't been assigned to this class. Ask an admin to assign you to it." },
       { status: 403 }
     );
   }
@@ -151,9 +147,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Teacher profile not found." }, { status: 404 });
   }
 
-  if (!(await isAssignedToClassAndSubject(teacher.id, classId, subjectId))) {
+  if (!(await isAssignedToClass(teacher.id, classId))) {
     return NextResponse.json(
-      { error: "You haven't been assigned to this class/subject. Ask an admin to assign it to you." },
+      { error: "You haven't been assigned to this class. Ask an admin to assign you to it." },
       { status: 403 }
     );
   }

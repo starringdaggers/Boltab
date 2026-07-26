@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function ForgotPasswordPage() {
   return (
-    <main className="min-h-screen w-full flex items-center justify-center bg-[#241640] p-4 sm:p-8">
+    <main className="min-h-screen w-full flex items-center justify-center bg-[#163832] p-4 sm:p-8">
       <div className="w-full max-w-md bg-antique rounded-[2rem] shadow-2xl px-8 py-12 text-center">
         <p className="font-mono text-xs tracking-[0.2em] text-vandyke uppercase mb-1">
           Boltab
