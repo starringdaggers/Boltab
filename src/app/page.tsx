@@ -78,7 +78,7 @@ export default function LandingPage() {
               <polyline
                 points="40,230 110,190 160,205 210,140 260,110 310,70 360,55"
                 fill="none"
-                stroke="#DAF1DE"
+                stroke="#FFFFFF"
                 strokeWidth="1.5"
                 strokeDasharray="3 5"
                 opacity="0.7"
@@ -87,7 +87,7 @@ export default function LandingPage() {
                 [40, 230], [110, 190], [160, 205], [210, 140],
                 [260, 110], [310, 70], [360, 55],
               ].map(([cx, cy], i) => (
-                <circle key={i} cx={cx} cy={cy} r="4" fill="#DAF1DE" />
+                <circle key={i} cx={cx} cy={cy} r="4" fill="#FFFFFF" />
               ))}
             </svg>
             <div className="absolute bottom-5 left-6 right-6">

@@ -39,101 +39,70 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen w-full flex items-center justify-center bg-white p-4 sm:p-8">
-      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 rounded-[2rem] overflow-hidden shadow-2xl">
-        {/* Left panel — brand + signature illustration (hidden on mobile) */}
-        <div className="hidden md:flex relative flex-col justify-between bg-ocean-sunset overflow-hidden px-10 py-12">
-          {/* Faint ledger lines — echoes a marked report sheet */}
-          <div
-            className="absolute inset-0 opacity-[0.08] pointer-events-none"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(to bottom, transparent, transparent 47px, #DAF1DE 48px)",
-            }}
-          />
+      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 rounded-[2rem] overflow-hidden shadow-2xl border border-antique-dim">
+        {/* Left panel — solid brand color, simple illustration, no marketing copy */}
+        <div className="hidden md:flex relative flex-col justify-between bg-choc px-10 py-12">
+          <p className="font-mono text-xs tracking-[0.2em] text-white uppercase">
+            Boltab Brilliant Schools
+          </p>
 
-          <div className="relative z-10">
-            <p className="font-mono text-xs tracking-[0.2em] text-taupe uppercase mb-1">
-              Boltab
-            </p>
-            <p className="font-display text-lg text-antique font-semibold">
-              Brilliant Schools
-            </p>
-          </div>
-
-          <div className="relative z-10">
-            <h1 className="font-display text-3xl lg:text-4xl text-antique font-semibold mb-3 leading-tight">
-              Every grade,
-              <br />
-              on record.
-            </h1>
-            <p className="text-taupe max-w-xs">
-              Students track their progress. Teachers post results in
-              minutes. One record, always up to date.
-            </p>
-          </div>
-
-          <div className="relative z-10 flex justify-center">
-            {/* Signature illustration — student at a desk with books */}
-            <svg viewBox="0 0 300 220" className="w-full max-w-[260px]" aria-hidden="true">
+          <div className="flex justify-center">
+            <svg viewBox="0 0 300 220" className="w-full max-w-[240px]" aria-hidden="true">
               {/* floating lightbulb accent */}
               <g opacity="0.85">
-                <circle cx="248" cy="30" r="12" fill="none" stroke="#DAF1DE" strokeWidth="2" />
-                <path d="M248 42v8M242 54h12" stroke="#DAF1DE" strokeWidth="2" strokeLinecap="round" />
-                <path d="M243 26a6 6 0 0 1 10 0" stroke="#DAF1DE" strokeWidth="1.5" fill="none" />
+                <circle cx="248" cy="30" r="12" fill="none" stroke="#FFFFFF" strokeWidth="2" />
+                <path d="M248 42v8M242 54h12" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+                <path d="M243 26a6 6 0 0 1 10 0" stroke="#FFFFFF" strokeWidth="1.5" fill="none" />
               </g>
 
               {/* small potted plant */}
               <g>
-                <path d="M18 176h20l-3 26H21l-3-26Z" fill="#8EB69B" />
-                <path d="M28 176c0-14-16-18-16-30 10 0 16 12 16 22 0-16 14-22 22-18-2 14-14 20-22 26Z" fill="#4C7A5E" />
+                <path d="M18 176h20l-3 26H21l-3-26Z" fill="#DAF1DE" />
+                <path d="M28 176c0-14-16-18-16-30 10 0 16 12 16 22 0-16 14-22 22-18-2 14-14 20-22 26Z" fill="#8EB69B" />
               </g>
 
               {/* desk */}
-              <rect x="60" y="150" width="190" height="10" rx="3" fill="#8EB69B" />
-              <rect x="70" y="160" width="8" height="40" fill="#1D4941" />
-              <rect x="222" y="160" width="8" height="40" fill="#1D4941" />
+              <rect x="60" y="150" width="190" height="10" rx="3" fill="#1A3F36" />
+              <rect x="70" y="160" width="8" height="40" fill="#1A3F36" />
+              <rect x="222" y="160" width="8" height="40" fill="#1A3F36" />
 
               {/* stacked books on the desk */}
               <g>
-                <rect x="196" y="128" width="46" height="11" rx="2" fill="#235347" transform="rotate(-3 196 128)" />
-                <rect x="198" y="116" width="42" height="11" rx="2" fill="#DAF1DE" opacity="0.9" transform="rotate(2 198 116)" />
+                <rect x="196" y="128" width="46" height="11" rx="2" fill="#163832" transform="rotate(-3 196 128)" />
+                <rect x="198" y="116" width="42" height="11" rx="2" fill="#FFFFFF" opacity="0.9" transform="rotate(2 198 116)" />
                 <rect x="200" y="104" width="38" height="11" rx="2" fill="#8EB69B" transform="rotate(-2 200 104)" />
               </g>
 
               {/* student, seated behind the desk */}
               <g>
-                {/* far arm resting on desk */}
                 <rect x="128" y="132" width="34" height="12" rx="6" fill="#051F20" />
-                {/* torso */}
-                <path d="M104 150c0-30 20-46 46-46s46 16 46 46" fill="#235347" />
-                {/* near arm resting on the open book */}
-                <rect x="118" y="136" width="36" height="12" rx="6" fill="#163832" />
-                {/* head */}
-                <circle cx="150" cy="86" r="22" fill="#DAF1DE" />
-                {/* simple hair */}
+                <path d="M104 150c0-30 20-46 46-46s46 16 46 46" fill="#163832" />
+                <rect x="118" y="136" width="36" height="12" rx="6" fill="#051F20" />
+                <circle cx="150" cy="86" r="22" fill="#FFFFFF" />
                 <path d="M129 82a21 21 0 0 1 42 0c-6-4-12-6-21-6s-15 2-21 6Z" fill="#051F20" />
-                {/* pencil in hand */}
-                <rect x="150" y="128" width="30" height="5" rx="2.5" fill="#DAF1DE" transform="rotate(-18 150 128)" />
+                <rect x="150" y="128" width="30" height="5" rx="2.5" fill="#FFFFFF" transform="rotate(-18 150 128)" />
               </g>
 
               {/* open book in front of the student */}
-              <path d="M112 150c10-6 22-6 32 0v14c-10-6-22-6-32 0Z" fill="#DAF1DE" />
-              <path d="M176 150c-10-6-22-6-32 0v14c10-6 22-6 32 0Z" fill="#DAF1DE" opacity="0.85" />
+              <path d="M112 150c10-6 22-6 32 0v14c-10-6-22-6-32 0Z" fill="#FFFFFF" />
+              <path d="M176 150c-10-6-22-6-32 0v14c10-6 22-6 32 0Z" fill="#FFFFFF" opacity="0.85" />
               <path d="M144 150v14" stroke="#8EB69B" strokeWidth="1.5" />
             </svg>
           </div>
+
+          <div />
         </div>
 
-        {/* Right panel — the form, on a clean light background */}
-        <div className="flex items-center justify-center bg-bistre px-6 py-14 sm:px-12">
+        {/* Right panel — the form, clean and light */}
+        <div className="flex items-center justify-center bg-white px-6 py-14 sm:px-12">
           <div className="w-full max-w-sm">
             <p className="md:hidden font-mono text-xs tracking-[0.2em] text-taupe uppercase mb-3">
               Boltab Brilliant Schools
             </p>
-            <h2 className="font-display text-3xl text-antique font-semibold mb-2">
+            <h2 className="font-display text-3xl text-bistre font-semibold mb-2">
               Welcome back
             </h2>
-            <p className="text-taupe mb-10">
+            <p className="text-vandyke mb-10">
               Sign in to view or manage results.
             </p>
 
@@ -141,7 +110,7 @@ export default function LoginPage() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm text-taupe mb-1.5"
+                  className="block text-sm text-vandyke mb-1.5"
                 >
                   Email address
                 </label>
@@ -151,7 +120,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border-b border-taupe/40 text-antique placeholder:text-taupe/40 py-2 focus:border-choc transition-colors outline-none"
+                  className="w-full border border-taupe/50 rounded-lg bg-white text-bistre placeholder:text-taupe/60 px-3.5 py-2.5 focus:border-choc outline-none transition-colors"
                   placeholder="you@boltabschools.edu"
                   autoComplete="email"
                 />
@@ -160,7 +129,7 @@ export default function LoginPage() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm text-taupe mb-1.5"
+                  className="block text-sm text-vandyke mb-1.5"
                 >
                   Password
                 </label>
@@ -171,14 +140,14 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent border-b border-taupe/40 text-antique py-2 pr-10 focus:border-choc transition-colors outline-none"
+                    className="w-full border border-taupe/50 rounded-lg bg-white text-bistre px-3.5 py-2.5 pr-10 focus:border-choc outline-none transition-colors"
                     placeholder="••••••••"
                     autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 text-taupe/70 hover:text-antique transition-colors p-1"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 text-taupe hover:text-bistre transition-colors p-2.5"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
@@ -209,7 +178,7 @@ export default function LoginPage() {
               <div className="flex justify-end">
                 <a
                   href="/forgot-password"
-                  className="text-sm text-taupe hover:text-antique transition-colors"
+                  className="text-sm text-choc hover:underline transition-colors"
                 >
                   Forgot password?
                 </a>
@@ -218,13 +187,13 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-choc hover:bg-choc-dark disabled:opacity-60 disabled:cursor-not-allowed text-antique font-semibold rounded-full py-3.5 transition-colors"
+                className="w-full bg-choc hover:bg-choc-dark disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-full py-3.5 transition-colors"
               >
                 {loading ? "Signing in…" : "Sign in"}
               </button>
             </form>
 
-            <p className="text-sm text-taupe mt-8 text-center">
+            <p className="text-sm text-vandyke mt-8 text-center">
               Trouble accessing your account? Contact the school office.
             </p>
           </div>
