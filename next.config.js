@@ -30,16 +30,21 @@ const nextConfig = {
           key: "Strict-Transport-Security",
           value: "max-age=31536000; includeSubDomains",
         },
-        // Content-Security-Policy: the main defense against XSS. Scripts
-        // and frames are locked to 'self' with no exceptions. Styles allow
-        // 'unsafe-inline' because this app uses inline <style> tags for a
-        // couple of small CSS animations — a real but much lower-severity
-        // trade-off than allowing inline scripts.
+        // Content-Security-Policy: the main defense against XSS. Frames are
+        // locked to 'self' with no exceptions. Both scripts and styles allow
+        // 'unsafe-inline' because Next.js's App Router injects small inline
+        // <script> tags to hydrate every page (attach click handlers, etc.)
+        // — without this, the browser silently blocks those scripts and the
+        // page renders but never becomes interactive (exactly what happened
+        // here: forms visible, but buttons did nothing). A stricter nonce-
+        // based CSP is possible via middleware and is a reasonable follow-up
+        // hardening step, but isn't safe to land blind without being able
+        // to fully verify it end-to-end first.
         {
           key: "Content-Security-Policy",
           value: [
             "default-src 'self'",
-            "script-src 'self'",
+            "script-src 'self' 'unsafe-inline'",
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: blob:",
             "font-src 'self' data:",
