@@ -57,36 +57,36 @@ export default function LoginPage() {
 
               {/* small potted plant */}
               <g>
-                <path d="M18 176h20l-3 26H21l-3-26Z" fill="#DAF1DE" />
-                <path d="M28 176c0-14-16-18-16-30 10 0 16 12 16 22 0-16 14-22 22-18-2 14-14 20-22 26Z" fill="#8EB69B" />
+                <path d="M18 176h20l-3 26H21l-3-26Z" fill="#E4E3FF" />
+                <path d="M28 176c0-14-16-18-16-30 10 0 16 12 16 22 0-16 14-22 22-18-2 14-14 20-22 26Z" fill="#A8A6E8" />
               </g>
 
               {/* desk */}
-              <rect x="60" y="150" width="190" height="10" rx="3" fill="#1A3F36" />
-              <rect x="70" y="160" width="8" height="40" fill="#1A3F36" />
-              <rect x="222" y="160" width="8" height="40" fill="#1A3F36" />
+              <rect x="60" y="150" width="190" height="10" rx="3" fill="#5958D5" />
+              <rect x="70" y="160" width="8" height="40" fill="#5958D5" />
+              <rect x="222" y="160" width="8" height="40" fill="#5958D5" />
 
               {/* stacked books on the desk */}
               <g>
-                <rect x="196" y="128" width="46" height="11" rx="2" fill="#163832" transform="rotate(-3 196 128)" />
+                <rect x="196" y="128" width="46" height="11" rx="2" fill="#454390" transform="rotate(-3 196 128)" />
                 <rect x="198" y="116" width="42" height="11" rx="2" fill="#FFFFFF" opacity="0.9" transform="rotate(2 198 116)" />
-                <rect x="200" y="104" width="38" height="11" rx="2" fill="#8EB69B" transform="rotate(-2 200 104)" />
+                <rect x="200" y="104" width="38" height="11" rx="2" fill="#A8A6E8" transform="rotate(-2 200 104)" />
               </g>
 
               {/* student, seated behind the desk */}
               <g>
-                <rect x="128" y="132" width="34" height="12" rx="6" fill="#051F20" />
-                <path d="M104 150c0-30 20-46 46-46s46 16 46 46" fill="#163832" />
-                <rect x="118" y="136" width="36" height="12" rx="6" fill="#051F20" />
+                <rect x="128" y="132" width="34" height="12" rx="6" fill="#2F2E71" />
+                <path d="M104 150c0-30 20-46 46-46s46 16 46 46" fill="#454390" />
+                <rect x="118" y="136" width="36" height="12" rx="6" fill="#2F2E71" />
                 <circle cx="150" cy="86" r="22" fill="#FFFFFF" />
-                <path d="M129 82a21 21 0 0 1 42 0c-6-4-12-6-21-6s-15 2-21 6Z" fill="#051F20" />
+                <path d="M129 82a21 21 0 0 1 42 0c-6-4-12-6-21-6s-15 2-21 6Z" fill="#2F2E71" />
                 <rect x="150" y="128" width="30" height="5" rx="2.5" fill="#FFFFFF" transform="rotate(-18 150 128)" />
               </g>
 
               {/* open book in front of the student */}
               <path d="M112 150c10-6 22-6 32 0v14c-10-6-22-6-32 0Z" fill="#FFFFFF" />
               <path d="M176 150c-10-6-22-6-32 0v14c10-6 22-6 32 0Z" fill="#FFFFFF" opacity="0.85" />
-              <path d="M144 150v14" stroke="#8EB69B" strokeWidth="1.5" />
+              <path d="M144 150v14" stroke="#A8A6E8" strokeWidth="1.5" />
             </svg>
           </div>
 

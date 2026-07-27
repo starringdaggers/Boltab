@@ -72,7 +72,7 @@ export default function LandingPage() {
                 [310, 220], [200, 30], [150, 260], [250, 270], [20, 150],
                 [380, 190], [110, 60],
               ].map(([cx, cy], i) => (
-                <circle key={i} cx={cx} cy={cy} r="1.6" fill="#8EB69B" opacity="0.6" />
+                <circle key={i} cx={cx} cy={cy} r="1.6" fill="#A8A6E8" opacity="0.6" />
               ))}
 
               <polyline
