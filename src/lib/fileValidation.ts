@@ -59,7 +59,7 @@ function sniff(bytes: Uint8Array): SniffResult {
 export function validateAndNormalizeReceipt(
   dataUrl: string
 ): { ok: true; normalizedDataUrl: string } | { ok: false; error: string } {
-  const match = /^data:([^;]+);base64,(.+)$/s.exec(dataUrl);
+  const match = /^data:([^;]+);base64,(.+)$/.exec(dataUrl);
   if (!match) {
     return { ok: false, error: "That doesn't look like a valid uploaded file." };
   }
