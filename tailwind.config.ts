@@ -1,14 +1,15 @@
 import type { Config } from "tailwindcss";
 
 // Boltab Brilliant Schools — design token system
-// Palette: forest green (#051F20 → #DAF1DE), 6-stop scale.
+// Palette: signature blue (#6967FB) + white, derived into a full tonal
+// system for text/background/border legibility.
 // Token names (bistre/antique/taupe/choc/vandyke) are historical from an
 // earlier palette — kept as-is so no component code needs to change, they
-// just resolve to these green/neutral values now, in the same light-to-dark
+// just resolve to these blue/white values now, in the same light-to-dark
 // structural roles as before:
-//   antique = lightest (backgrounds)     → taupe = muted sage/borders
-//   choc    = accent/CTA                 → vandyke = secondary dark
-//   bistre  = darkest (primary/nav)
+//   antique = lightest (backgrounds, white)  → taupe = muted periwinkle/borders
+//   choc    = accent/CTA (signature #6967FB) → vandyke = secondary dark text
+//   bistre  = darkest (primary/nav, deep indigo)
 // Two functional accents (outside the core palette) are added ONLY for result status states.
 const config: Config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
@@ -16,24 +17,24 @@ const config: Config = {
     extend: {
       colors: {
         bistre: {
-          DEFAULT: "#051F20",
-          light: "#0B2B26",
+          DEFAULT: "#2F2E71",
+          light: "#4E4D86",
         },
         antique: {
           DEFAULT: "#FFFFFF",
-          dim: "#F2F2F2",
+          dim: "#F1F0FF",
         },
         taupe: {
-          DEFAULT: "#8EB69B",
-          dark: "#729C82",
+          DEFAULT: "#A8A6E8",
+          dark: "#8A87CE",
         },
         choc: {
-          DEFAULT: "#235347",
-          dark: "#1A3F36",
+          DEFAULT: "#6967FB",
+          dark: "#5958D5",
         },
         vandyke: {
-          DEFAULT: "#163832",
-          light: "#1D4941",
+          DEFAULT: "#454390",
+          light: "#6D6BB5",
         },
         // Functional accents — used ONLY for grade/result states, never as brand color
         status: {
@@ -48,7 +49,7 @@ const config: Config = {
         mono: ["var(--font-plexmono)", "monospace"],
       },
       backgroundImage: {
-        "ocean-sunset": "linear-gradient(160deg, #051F20 0%, #163832 55%, #235347 100%)",
+        "ocean-sunset": "linear-gradient(160deg, #14132B 0%, #454390 55%, #6967FB 100%)",
       },
       borderRadius: {
         card: "20px",
