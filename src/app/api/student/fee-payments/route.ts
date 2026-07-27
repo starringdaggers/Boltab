@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
+import { validateAndNormalizeReceipt } from "@/lib/fileValidation";
 
 // Roughly caps the uploaded receipt at ~3MB (base64 text is ~33% larger
 // than the original file, so this allows an original file up to ~2.2MB).
@@ -13,8 +14,7 @@ const submitSchema = z.object({
   receiptDataUrl: z
     .string()
     .min(1)
-    .max(MAX_RECEIPT_DATA_URL_LENGTH, "Receipt file is too large. Please upload a smaller image (under ~2MB).")
-    .refine((v) => v.startsWith("data:"), "Receipt must be a valid uploaded file."),
+    .max(MAX_RECEIPT_DATA_URL_LENGTH, "Receipt file is too large. Please upload a smaller image (under ~2MB)."),
   receiptFileName: z.string().min(1).max(200),
 });
 
@@ -28,6 +28,13 @@ export async function POST(req: NextRequest) {
       { error: parsed.error.issues[0]?.message || "Invalid submission." },
       { status: 400 }
     );
+  }
+
+  // Check the file's actual bytes — never trust the client-declared MIME
+  // type in the data: URL prefix, which is trivially forgeable.
+  const validated = validateAndNormalizeReceipt(parsed.data.receiptDataUrl);
+  if (!validated.ok) {
+    return NextResponse.json({ error: validated.error }, { status: 400 });
   }
 
   const student = await db.student.findUnique({ where: { userId: session.userId } });
@@ -45,7 +52,7 @@ export async function POST(req: NextRequest) {
       studentId: student.id,
       termId: parsed.data.termId,
       amountClaimed: parsed.data.amountClaimed,
-      receiptDataUrl: parsed.data.receiptDataUrl,
+      receiptDataUrl: validated.normalizedDataUrl,
       receiptFileName: parsed.data.receiptFileName,
     },
   });

@@ -54,9 +54,21 @@ export async function POST(req: NextRequest) {
   const validPassword = await verifyPassword(password, user.passwordHash);
 
   if (!validPassword) {
-    const attempts = user.failedLoginAttempts + 1;
+    // Atomic increment at the database level — this is the important part.
+    // The previous version did a separate read then write, so several
+    // concurrent wrong-password requests could all read the same starting
+    // count before any of them wrote it back, letting more than 3 real
+    // guesses through before the lock engaged. A single atomic UPDATE ...
+    // SET count = count + 1 is serialized by Postgres per-row, so
+    // concurrent requests each see a genuinely incremented value instead
+    // of racing on a stale read.
+    const updated = await db.user.update({
+      where: { id: user.id },
+      data: { failedLoginAttempts: { increment: 1 } },
+      select: { failedLoginAttempts: true },
+    });
 
-    if (attempts >= MAX_ATTEMPTS) {
+    if (updated.failedLoginAttempts >= MAX_ATTEMPTS) {
       const lockedUntil = new Date(Date.now() + LOCKOUT_MINUTES * 60 * 1000);
       await db.user.update({
         where: { id: user.id },
@@ -70,10 +82,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await db.user.update({
-      where: { id: user.id },
-      data: { failedLoginAttempts: attempts },
-    });
     return NextResponse.json(
       { error: "Incorrect email or password." },
       { status: 401 }
