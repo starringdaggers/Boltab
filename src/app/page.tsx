@@ -6,13 +6,13 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="sticky top-0 z-20 bg-ocean-sunset">
         <div className="max-w-6xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
-          <span className="font-mono text-xs tracking-[0.2em] text-antique uppercase">
-            Boltab Brilliant Schools
-          </span>
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="Boltab Brilliant Schools crest" className="h-10 w-auto" />
+            <span className="font-mono text-xs tracking-[0.2em] text-antique uppercase">
+              Boltab Brilliant Schools
+            </span>
+          </div>
           <nav className="hidden md:flex items-center gap-8 text-sm text-taupe">
-            <a href="#audiences" className="hover:text-antique transition-colors">
-              Who it's for
-            </a>
             <a href="#how-it-works" className="hover:text-antique transition-colors">
               How it works
             </a>
@@ -35,14 +35,6 @@ export default function LandingPage() {
           <p className="font-mono text-xs tracking-[0.2em] text-choc uppercase mb-4">
             Results Portal
           </p>
-          <h1 className="font-display text-4xl md:text-5xl font-semibold leading-tight mb-5">
-            Every grade, in its place, the moment it's marked.
-          </h1>
-          <p className="text-vandyke text-lg mb-8 max-w-md">
-            Teachers post scores in minutes. Students see them the moment
-            they're published. No spreadsheets, no waiting for a paper
-            report card.
-          </p>
           <div className="flex flex-wrap gap-3">
             <Link
               href="/login"
@@ -50,12 +42,6 @@ export default function LandingPage() {
             >
               Sign in
             </Link>
-            <a
-              href="#how-it-works"
-              className="border border-taupe/60 hover:border-choc text-bistre font-medium rounded-lg px-6 py-3 transition-colors"
-            >
-              See how it works
-            </a>
           </div>
         </div>
 
