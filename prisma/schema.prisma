@@ -239,7 +239,17 @@ model ClassFee {
   class   Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
   termId  String
   term    Term   @relation(fields: [termId], references: [id], onDelete: Cascade)
-  amount  Float // total fee for this class this term, in Naira
+  amount  Float // total fee for this class this term, in Naira — sum of lineItems when present
+
+  // Itemized breakdown matching the physical bill (e.g. School fees,
+  // Examination, Development), stored as [{ "label": "...", "amount": 0 }].
+  // Null/empty means this bill predates itemization and just uses `amount`.
+  lineItems Json?
+
+  // Admin can build/edit a bill privately, then release it to students
+  // whenever they're ready — students never see a bill before release.
+  isReleased Boolean   @default(false)
+  releasedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
