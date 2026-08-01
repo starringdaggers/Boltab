@@ -101,6 +101,11 @@ export default function ReportCardView({
   return (
     <div className="bg-white text-bistre border border-taupe/30 rounded-card p-4 sm:p-8 max-w-3xl mx-auto print:border-none print:p-0 print:max-w-none">
       <div className="text-center mb-5 border-b border-taupe/30 pb-4">
+        <img
+          src="/logo.png"
+          alt="Boltab Brilliant Schools crest"
+          className="h-16 w-auto mx-auto mb-2"
+        />
         <p className="font-mono text-[10px] tracking-[0.2em] text-vandyke uppercase">
           Boltab Brilliant Schools
         </p>

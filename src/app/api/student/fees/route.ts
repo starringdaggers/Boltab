@@ -36,11 +36,24 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
+  // Bills stay invisible to students entirely until an admin releases them —
+  // a bill being drafted/edited should never leak early.
+  const released = classFee?.isReleased ?? false;
+  const feeAmount = released ? classFee?.amount ?? null : null;
+  const lineItems = released ? (classFee?.lineItems as { label: string; amount: number }[] | null) ?? null : null;
+
   const approvedTotal = payments
     .filter((p) => p.status === "APPROVED")
     .reduce((sum, p) => sum + p.amountClaimed, 0);
-  const feeAmount = classFee?.amount ?? null;
   const balance = feeAmount !== null ? Math.max(0, feeAmount - approvedTotal) : null;
 
-  return NextResponse.json({ accounts, feeAmount, approvedTotal, balance, payments });
+  return NextResponse.json({
+    accounts,
+    feeAmount,
+    lineItems,
+    billReleased: released,
+    approvedTotal,
+    balance,
+    payments,
+  });
 }

@@ -40,6 +40,8 @@ export default function StudentFeesPage() {
 
   const [accounts, setAccounts] = useState<SchoolAccount[]>([]);
   const [feeAmount, setFeeAmount] = useState<number | null>(null);
+  const [lineItems, setLineItems] = useState<{ label: string; amount: number }[] | null>(null);
+  const [billReleased, setBillReleased] = useState(false);
   const [approvedTotal, setApprovedTotal] = useState(0);
   const [balance, setBalance] = useState<number | null>(null);
   const [payments, setPayments] = useState<PaymentRow[]>([]);
@@ -83,6 +85,8 @@ export default function StudentFeesPage() {
       }
       setAccounts(data.accounts || []);
       setFeeAmount(data.feeAmount);
+      setLineItems(data.lineItems || null);
+      setBillReleased(data.billReleased ?? false);
       setApprovedTotal(data.approvedTotal || 0);
       setBalance(data.balance);
       setPayments(data.payments || []);
@@ -210,6 +214,49 @@ export default function StudentFeesPage() {
                     {a.notes && <p className="text-vandyke text-xs mt-1">{a.notes}</p>}
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* Itemized bill, matching the school's physical bill format */}
+          <div className="bg-white border border-taupe/30 rounded-card p-5 mb-6">
+            <p className="font-mono text-[10px] tracking-[0.2em] text-vandyke uppercase text-center mb-1">
+              Boltab Brilliant Schools
+            </p>
+            <h2 className="font-display text-lg text-bistre font-semibold text-center mb-4">
+              Fee Bill — {terms.find((t) => t.id === selectedTermId)?.name || "This Term"}
+            </h2>
+
+            {!billReleased ? (
+              <p className="text-vandyke text-sm text-center py-4">
+                Your school hasn't published this term's fee bill yet — check
+                back soon.
+              </p>
+            ) : (
+              <div className="max-w-sm mx-auto">
+                <table className="w-full text-sm">
+                  <tbody>
+                    {(lineItems && lineItems.length > 0
+                      ? lineItems
+                      : [{ label: "Total fee", amount: feeAmount ?? 0 }]
+                    ).map((li, i) => (
+                      <tr key={i} className="border-b border-taupe/20">
+                        <td className="py-1.5 text-vandyke">
+                          {i + 1}. {li.label}
+                        </td>
+                        <td className="py-1.5 text-right font-mono text-bistre">
+                          {naira(li.amount)}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr>
+                      <td className="py-1.5 font-semibold text-bistre">Total</td>
+                      <td className="py-1.5 text-right font-mono font-semibold text-bistre">
+                        {feeAmount !== null ? naira(feeAmount) : "—"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

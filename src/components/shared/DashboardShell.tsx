@@ -60,13 +60,16 @@ export default function DashboardShell({
 
   const sidebarInner = (
     <>
-      <div className="px-6 py-6 border-b border-taupe/20">
-        <p className="font-mono text-[10px] tracking-[0.2em] text-taupe uppercase">
-          Boltab Brilliant Schools
-        </p>
-        <p className="font-display text-lg text-antique font-semibold mt-1">
-          {roleLabel}
-        </p>
+      <div className="px-6 py-6 border-b border-taupe/20 flex items-center gap-3">
+        <img src="/logo.png" alt="Boltab Brilliant Schools crest" className="h-11 w-auto shrink-0" />
+        <div>
+          <p className="font-mono text-[10px] tracking-[0.2em] text-taupe uppercase">
+            Boltab Brilliant Schools
+          </p>
+          <p className="font-display text-lg text-antique font-semibold mt-1">
+            {roleLabel}
+          </p>
+        </div>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
@@ -99,11 +102,14 @@ export default function DashboardShell({
     <div className="min-h-screen flex bg-antique">
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 inset-x-0 z-30 bg-ocean-sunset flex items-center justify-between px-4 h-14 print:hidden">
-        <div>
-          <p className="font-mono text-[9px] tracking-[0.15em] text-taupe uppercase">
-            Boltab Brilliant Schools
-          </p>
-          <p className="font-display text-sm text-antique font-semibold">{roleLabel}</p>
+        <div className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="Boltab Brilliant Schools crest" className="h-8 w-auto" />
+          <div>
+            <p className="font-mono text-[9px] tracking-[0.15em] text-taupe uppercase">
+              Boltab Brilliant Schools
+            </p>
+            <p className="font-display text-sm text-antique font-semibold">{roleLabel}</p>
+          </div>
         </div>
         <button
           onClick={() => setOpen(true)}
