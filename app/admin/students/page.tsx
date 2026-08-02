@@ -1,0 +1,415 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search } from "lucide-react";
+import Avatar from "@/components/shared/Avatar";
+import Pagination from "@/components/shared/Pagination";
+
+type StudentRow = {
+  id: string;
+  admissionNo: string;
+  user: { id: string; name: string; email: string; profilePictureUrl?: string | null };
+  class: { id: string; name: string };
+};
+type Option = { id: string; name: string };
+
+export default function StudentsPage() {
+  const [students, setStudents] = useState<StudentRow[]>([]);
+  const [classes, setClasses] = useState<Option[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    admissionNo: "",
+    classId: "",
+  });
+  const [pictureDataUrl, setPictureDataUrl] = useState<string | null>(null);
+  const [pictureError, setPictureError] = useState<string | null>(null);
+  const pictureInputRef = useRef<HTMLInputElement>(null);
+
+  async function handlePictureSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    setPictureError(null);
+    if (!file) {
+      setPictureDataUrl(null);
+      return;
+    }
+    if (file.size > 2_000_000) {
+      setPictureError("That image is too large — please use one under 2MB.");
+      setPictureDataUrl(null);
+      if (pictureInputRef.current) pictureInputRef.current.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setPictureDataUrl(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+  const [newCredentials, setNewCredentials] = useState<{
+    email: string;
+    tempPassword: string;
+  } | null>(null);
+
+  const [importResult, setImportResult] = useState<{
+    created: { name: string; email: string; tempPassword: string }[];
+    errors: { row: number; reason: string }[];
+  } | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
+
+  async function load() {
+    setLoading(true);
+    const [studentsRes, classesRes] = await Promise.all([
+      fetch("/api/admin/students"),
+      fetch("/api/admin/classes"),
+    ]);
+    const studentsData = await studentsRes.json();
+    const classesData = await classesRes.json();
+    setStudents(studentsData.students || []);
+    setClasses(classesData.classes || []);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setNewCredentials(null);
+    const res = await fetch("/api/admin/students", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...form,
+        profilePictureDataUrl: pictureDataUrl || undefined,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error);
+      return;
+    }
+    setNewCredentials({ email: data.user.email, tempPassword: data.tempPassword });
+    setForm({ name: "", email: "", admissionNo: "", classId: "" });
+    setPictureDataUrl(null);
+    if (pictureInputRef.current) pictureInputRef.current.value = "";
+    load();
+  }
+
+  async function handleResetPassword(studentId: string, email: string) {
+    if (!confirm(`Reset this student's password? Their current password will stop working immediately.`))
+      return;
+    setError(null);
+    const res = await fetch(`/api/admin/students/${studentId}/reset-password`, {
+      method: "PATCH",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error);
+      return;
+    }
+    setNewCredentials({ email, tempPassword: data.tempPassword });
+  }
+
+  async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    setImportResult(null);
+    const text = await file.text();
+    const res = await fetch("/api/admin/students/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ csv: text }),
+    });
+    const data = await res.json();
+    setImportResult(data);
+    setImporting(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    load();
+  }
+
+  function downloadCredentialsCsv() {
+    if (!importResult?.created.length) return;
+    const header = "name,email,tempPassword\n";
+    const rows = importResult.created
+      .map((c) => `${c.name},${c.email},${c.tempPassword}`)
+      .join("\n");
+    const blob = new Blob([header + rows], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "student-credentials.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <div className="p-5 sm:p-8 lg:p-10 max-w-3xl">
+      <h1 className="font-display text-3xl text-bistre font-semibold mb-1">
+        Students
+      </h1>
+      <p className="text-vandyke mb-8">
+        Add one student at a time, or bulk import a whole class via CSV.
+      </p>
+
+      {/* Single create */}
+      <form onSubmit={handleCreate} className="grid grid-cols-2 gap-3 mb-4">
+        <input
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="Full name"
+          className="border border-taupe/50 rounded-lg px-3 py-2 bg-white/60 focus:border-choc outline-none"
+        />
+        <input
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          placeholder="Email"
+          type="email"
+          className="border border-taupe/50 rounded-lg px-3 py-2 bg-white/60 focus:border-choc outline-none"
+        />
+        <input
+          value={form.admissionNo}
+          onChange={(e) => setForm({ ...form, admissionNo: e.target.value })}
+          placeholder="Admission number"
+          className="border border-taupe/50 rounded-lg px-3 py-2 bg-white/60 focus:border-choc outline-none"
+        />
+        <select
+          value={form.classId}
+          onChange={(e) => setForm({ ...form, classId: e.target.value })}
+          className="border border-taupe/50 rounded-lg px-3 py-2 bg-white/60"
+        >
+          <option value="">Select class…</option>
+          {classes.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+
+        <div className="col-span-2 flex items-center gap-3">
+          {pictureDataUrl && (
+            <img
+              src={pictureDataUrl}
+              alt="Preview"
+              className="w-12 h-12 rounded-full object-cover border border-taupe/40"
+            />
+          )}
+          <div className="flex-1">
+            <label className="block text-xs text-vandyke mb-1">
+              Profile picture (optional)
+            </label>
+            <input
+              ref={pictureInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handlePictureSelected}
+              className="text-sm w-full"
+            />
+            {pictureError && (
+              <p className="text-status-fail text-xs mt-1">{pictureError}</p>
+            )}
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="col-span-2 bg-choc hover:bg-choc-dark text-antique font-medium rounded-lg py-2 transition-colors"
+        >
+          Add student
+        </button>
+      </form>
+      {error && <p className="text-status-fail text-sm mb-4">{error}</p>}
+      {newCredentials && (
+        <div className="bg-status-pass/10 border border-status-pass/30 rounded-lg px-4 py-3 mb-8 text-sm">
+          <p className="text-bistre font-medium mb-1">
+            Share these credentials with the student now — this won't be shown again.
+          </p>
+          <p className="font-mono text-vandyke">
+            {newCredentials.email} / {newCredentials.tempPassword}
+          </p>
+        </div>
+      )}
+
+      {/* CSV bulk import */}
+      <div className="bg-white/40 border border-taupe/30 rounded-card p-6 mb-8">
+        <h2 className="font-display text-xl text-bistre font-semibold mb-2">
+          Bulk import via CSV
+        </h2>
+        <p className="text-sm text-vandyke mb-4">
+          File must have a header row exactly like this:{" "}
+          <code className="font-mono bg-taupe/20 px-1.5 py-0.5 rounded">
+            name,email,admissionNo,className
+          </code>
+          . <code className="font-mono">className</code> must match an
+          existing class name.
+        </p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv"
+          onChange={handleFileSelected}
+          disabled={importing}
+          className="text-sm"
+        />
+        {importing && <p className="text-vandyke text-sm mt-2">Importing…</p>}
+
+        {importResult && (
+          <div className="mt-4 space-y-3">
+            {importResult.created.length > 0 && (
+              <div className="bg-status-pass/10 border border-status-pass/30 rounded-lg px-4 py-3 text-sm">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-bistre font-medium">
+                    {importResult.created.length} account(s) created.
+                  </p>
+                  <button
+                    onClick={downloadCredentialsCsv}
+                    className="text-status-pass underline text-xs"
+                  >
+                    Download credentials CSV
+                  </button>
+                </div>
+                <p className="text-vandyke text-xs">
+                  These temporary passwords are only shown once — download
+                  and distribute them now.
+                </p>
+              </div>
+            )}
+            {importResult.errors.length > 0 && (
+              <div className="bg-status-fail/10 border border-status-fail/30 rounded-lg px-4 py-3 text-sm">
+                <p className="text-bistre font-medium mb-1">
+                  {importResult.errors.length} row(s) skipped:
+                </p>
+                <ul className="text-vandyke text-xs space-y-0.5">
+                  {importResult.errors.map((e, i) => (
+                    <li key={i}>
+                      Row {e.row}: {e.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Roster */}
+      {loading ? (
+        <p className="text-vandyke">Loading…</p>
+      ) : students.length === 0 ? (
+        <p className="text-vandyke">No students yet.</p>
+      ) : (
+        <StudentsRoster
+          students={students}
+          search={search}
+          setSearch={setSearch}
+          page={page}
+          setPage={setPage}
+          pageSize={PAGE_SIZE}
+          onResetPassword={handleResetPassword}
+        />
+      )}
+    </div>
+  );
+}
+
+function StudentsRoster({
+  students,
+  search,
+  setSearch,
+  page,
+  setPage,
+  pageSize,
+  onResetPassword,
+}: {
+  students: StudentRow[];
+  search: string;
+  setSearch: (v: string) => void;
+  page: number;
+  setPage: (p: number) => void;
+  pageSize: number;
+  onResetPassword: (studentId: string, email: string) => void;
+}) {
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return students;
+    return students.filter(
+      (s) =>
+        s.user.name.toLowerCase().includes(q) ||
+        s.admissionNo.toLowerCase().includes(q) ||
+        s.class.name.toLowerCase().includes(q) ||
+        s.user.email.toLowerCase().includes(q)
+    );
+  }, [students, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageRows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  return (
+    <div>
+      <div className="relative max-w-xs mb-4">
+        <Search className="w-4 h-4 text-taupe absolute left-3 top-1/2 -translate-y-1/2" />
+        <input
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          placeholder="Search by name, admission no, class…"
+          className="w-full pl-9 pr-3 py-2 border border-taupe/50 rounded-lg bg-white/60 text-sm focus:border-choc outline-none"
+        />
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-vandyke text-sm">No students match "{search}".</p>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[560px]">
+              <thead>
+                <tr className="text-left text-vandyke border-b border-taupe/30">
+                  <th className="py-2 font-medium">Name</th>
+                  <th className="py-2 font-medium">Admission No.</th>
+                  <th className="py-2 font-medium">Class</th>
+                  <th className="py-2 font-medium">Email</th>
+                  <th className="py-2 font-medium">&nbsp;</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pageRows.map((s) => (
+                  <tr key={s.id} className="border-b border-taupe/10">
+                    <td className="py-2 text-bistre">
+                      <div className="flex items-center gap-2.5">
+                        <Avatar name={s.user.name} size={28} imageUrl={s.user.profilePictureUrl} />
+                        {s.user.name}
+                      </div>
+                    </td>
+                    <td className="py-2 font-mono text-vandyke">{s.admissionNo}</td>
+                    <td className="py-2 text-vandyke">{s.class.name}</td>
+                    <td className="py-2 text-vandyke">{s.user.email}</td>
+                    <td className="py-2">
+                      <button
+                        onClick={() => onResetPassword(s.id, s.user.email)}
+                        className="text-xs text-vandyke hover:text-bistre underline whitespace-nowrap"
+                      >
+                        Reset password
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+        </>
+      )}
+    </div>
+  );
+}
