@@ -32,8 +32,14 @@ model User {
   student Student?
   teacher Teacher?
 
+  // Current live profile picture — set directly by admin, or by a student's
+  // own approved change request (see ProfilePictureRequest below).
+  profilePictureUrl String?
+
   timetablesCreated Timetable[]
   reviewedFeePayments FeePayment[]
+  reviewedPictureRequests ProfilePictureRequest[] @relation("PictureReviewedBy")
+  pictureRequests ProfilePictureRequest[] @relation("PictureOwner")
 
   @@map("users")
 }
@@ -309,4 +315,25 @@ model AttendanceRecord {
 
   @@unique([studentId, date])
   @@map("attendance_records")
+}
+
+model ProfilePictureRequest {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("PictureOwner", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Stored inline as a base64 data URL, same pattern as fee payment receipts —
+  // no external file storage configured for this app.
+  imageDataUrl String
+
+  status String @default("PENDING") // "PENDING" | "APPROVED" | "REJECTED"
+
+  reviewedById String?
+  reviewedBy   User?   @relation("PictureReviewedBy", fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?
+  adminNote    String?
+
+  submittedAt DateTime @default(now())
+
+  @@map("profile_picture_requests")
 }
