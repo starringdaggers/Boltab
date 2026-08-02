@@ -15,10 +15,23 @@ function initialsForName(name: string): string {
 export default function Avatar({
   name,
   size = 32,
+  imageUrl,
 }: {
   name: string;
   size?: number;
+  imageUrl?: string | null;
 }) {
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt={name}
+        className="rounded-full object-cover shrink-0"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
   return (
     <div
       className="rounded-full flex items-center justify-center text-antique font-medium shrink-0"

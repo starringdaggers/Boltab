@@ -88,3 +88,44 @@ export function validateAndNormalizeReceipt(
   const normalizedDataUrl = `data:${sniffed.mimeType};base64,${base64Payload}`;
   return { ok: true, normalizedDataUrl };
 }
+
+/**
+ * Same magic-byte sniffing as receipts, but for profile pictures — PDFs are
+ * rejected here since a profile picture must actually be an image.
+ * A max size is enforced too, since photos get shown small everywhere
+ * (avatars, report cards) and don't need to be huge.
+ */
+export function validateAndNormalizeImage(
+  dataUrl: string,
+  maxBytes = 2_000_000
+): { ok: true; normalizedDataUrl: string } | { ok: false; error: string } {
+  const match = /^data:([^;]+);base64,(.+)$/.exec(dataUrl);
+  if (!match) {
+    return { ok: false, error: "That doesn't look like a valid uploaded file." };
+  }
+  const base64Payload = match[2];
+
+  let bytes: Buffer;
+  try {
+    bytes = Buffer.from(base64Payload, "base64");
+  } catch {
+    return { ok: false, error: "Couldn't read that file." };
+  }
+  if (bytes.length === 0) {
+    return { ok: false, error: "That file appears to be empty." };
+  }
+  if (bytes.length > maxBytes) {
+    return { ok: false, error: "That image is too large — please use one under 2MB." };
+  }
+
+  const sniffed = sniff(bytes);
+  if (!sniffed || sniffed.mimeType === "application/pdf") {
+    return {
+      ok: false,
+      error: "Profile pictures must be a JPEG, PNG, or WEBP image.",
+    };
+  }
+
+  const normalizedDataUrl = `data:${sniffed.mimeType};base64,${base64Payload}`;
+  return { ok: true, normalizedDataUrl };
+}

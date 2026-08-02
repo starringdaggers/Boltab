@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { hashPassword } from "@/lib/hash";
 import { generateTempPassword } from "@/lib/password";
+import { validateAndNormalizeImage } from "@/lib/fileValidation";
 
 export async function GET(req: NextRequest) {
   const session = await requireRole("ADMIN");
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
   const students = await db.student.findMany({
     where: classId ? { classId } : undefined,
     include: {
-      user: { select: { id: true, name: true, email: true } },
+      user: { select: { id: true, name: true, email: true, profilePictureUrl: true } },
       class: true,
     },
     orderBy: { user: { name: "asc" } },
@@ -33,6 +34,7 @@ const createSchema = z.object({
   classId: z.string().min(1),
   guardianName: z.string().max(100).optional(),
   guardianPhone: z.string().max(30).optional(),
+  profilePictureDataUrl: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -55,6 +57,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "This admission number is already in use." }, { status: 409 });
   }
 
+  let profilePictureUrl: string | undefined;
+  if (parsed.data.profilePictureDataUrl) {
+    const validated = validateAndNormalizeImage(parsed.data.profilePictureDataUrl);
+    if (!validated.ok) {
+      return NextResponse.json({ error: validated.error }, { status: 400 });
+    }
+    profilePictureUrl = validated.normalizedDataUrl;
+  }
+
   const tempPassword = generateTempPassword();
   const passwordHash = await hashPassword(tempPassword);
 
@@ -65,6 +76,7 @@ export async function POST(req: NextRequest) {
         email: parsed.data.email,
         passwordHash,
         role: "STUDENT",
+        profilePictureUrl,
         student: {
           create: {
             admissionNo: parsed.data.admissionNo,

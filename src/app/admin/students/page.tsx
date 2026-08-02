@@ -8,7 +8,7 @@ import Pagination from "@/components/shared/Pagination";
 type StudentRow = {
   id: string;
   admissionNo: string;
-  user: { id: string; name: string; email: string };
+  user: { id: string; name: string; email: string; profilePictureUrl?: string | null };
   class: { id: string; name: string };
 };
 type Option = { id: string; name: string };
@@ -26,6 +26,27 @@ export default function StudentsPage() {
     admissionNo: "",
     classId: "",
   });
+  const [pictureDataUrl, setPictureDataUrl] = useState<string | null>(null);
+  const [pictureError, setPictureError] = useState<string | null>(null);
+  const pictureInputRef = useRef<HTMLInputElement>(null);
+
+  async function handlePictureSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    setPictureError(null);
+    if (!file) {
+      setPictureDataUrl(null);
+      return;
+    }
+    if (file.size > 2_000_000) {
+      setPictureError("That image is too large — please use one under 2MB.");
+      setPictureDataUrl(null);
+      if (pictureInputRef.current) pictureInputRef.current.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setPictureDataUrl(reader.result as string);
+    reader.readAsDataURL(file);
+  }
   const [newCredentials, setNewCredentials] = useState<{
     email: string;
     tempPassword: string;
@@ -64,7 +85,10 @@ export default function StudentsPage() {
     const res = await fetch("/api/admin/students", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        profilePictureDataUrl: pictureDataUrl || undefined,
+      }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -73,6 +97,8 @@ export default function StudentsPage() {
     }
     setNewCredentials({ email: data.user.email, tempPassword: data.tempPassword });
     setForm({ name: "", email: "", admissionNo: "", classId: "" });
+    setPictureDataUrl(null);
+    if (pictureInputRef.current) pictureInputRef.current.value = "";
     load();
   }
 
@@ -166,6 +192,32 @@ export default function StudentsPage() {
             </option>
           ))}
         </select>
+
+        <div className="col-span-2 flex items-center gap-3">
+          {pictureDataUrl && (
+            <img
+              src={pictureDataUrl}
+              alt="Preview"
+              className="w-12 h-12 rounded-full object-cover border border-taupe/40"
+            />
+          )}
+          <div className="flex-1">
+            <label className="block text-xs text-vandyke mb-1">
+              Profile picture (optional)
+            </label>
+            <input
+              ref={pictureInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handlePictureSelected}
+              className="text-sm w-full"
+            />
+            {pictureError && (
+              <p className="text-status-fail text-xs mt-1">{pictureError}</p>
+            )}
+          </div>
+        </div>
+
         <button
           type="submit"
           className="col-span-2 bg-choc hover:bg-choc-dark text-antique font-medium rounded-lg py-2 transition-colors"
@@ -335,7 +387,7 @@ function StudentsRoster({
                   <tr key={s.id} className="border-b border-taupe/10">
                     <td className="py-2 text-bistre">
                       <div className="flex items-center gap-2.5">
-                        <Avatar name={s.user.name} size={28} />
+                        <Avatar name={s.user.name} size={28} imageUrl={s.user.profilePictureUrl} />
                         {s.user.name}
                       </div>
                     </td>
