@@ -17,6 +17,7 @@ import {
   Award,
   Table,
   Banknote,
+  CalendarCheck,
 } from "lucide-react";
 
 // Icons are resolved here, client-side, from a plain string key. Passing the
@@ -36,6 +37,7 @@ const ICON_MAP = {
   award: Award,
   timetable: Table,
   fees: Banknote,
+  attendance: CalendarCheck,
 } as const;
 
 export type NavIconKey = keyof typeof ICON_MAP;
