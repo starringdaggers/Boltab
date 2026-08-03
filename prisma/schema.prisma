@@ -40,6 +40,7 @@ model User {
   reviewedFeePayments FeePayment[]
   reviewedPictureRequests ProfilePictureRequest[] @relation("PictureReviewedBy")
   pictureRequests ProfilePictureRequest[] @relation("PictureOwner")
+  delegationsGranted AdminDelegation[]
 
   @@map("users")
 }
@@ -69,6 +70,7 @@ model Student {
   class         Class    @relation(fields: [classId], references: [id])
   guardianName  String?
   guardianPhone String?
+  dateOfBirth   DateTime?
 
   results     Result[]
   reportCards ReportCard[]
@@ -88,6 +90,7 @@ model Teacher {
   resultsUploaded Result[]
   reportCardsUpdated ReportCard[]
   attendanceMarked AttendanceRecord[]
+  delegation AdminDelegation?
 
   @@map("teachers")
 }
@@ -336,4 +339,31 @@ model ProfilePictureRequest {
   submittedAt DateTime @default(now())
 
   @@map("profile_picture_requests")
+}
+
+// Lets an admin delegate specific admin-panel sections to a teacher, at
+// the admin's discretion — the teacher keeps logging in as themselves
+// (still role TEACHER), this just opens doors into chosen /admin pages.
+// Deliberately excludes teacher management, fees, profile-picture approval,
+// and delegation itself — those stay admin-only regardless of delegation,
+// since granting those would let a delegate escalate their own access.
+model AdminDelegation {
+  id        String  @id @default(cuid())
+  teacherId String  @unique
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  canManageClasses     Boolean @default(false)
+  canManageSubjects    Boolean @default(false)
+  canManageTerms       Boolean @default(false)
+  canManageStudents    Boolean @default(false)
+  canManageReportCards Boolean @default(false)
+  canManageAttendance  Boolean @default(false)
+
+  grantedById String
+  grantedBy   User   @relation(fields: [grantedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admin_delegations")
 }

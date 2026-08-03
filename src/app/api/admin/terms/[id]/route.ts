@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { requireRole } from "@/lib/session";
+import { requireAdminAccess } from "@/lib/adminAccess";
 
 const updateSchema = z.object({
   name: z.string().min(1).max(50).optional(),
@@ -14,7 +14,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await requireRole("ADMIN");
+  const session = await requireAdminAccess("terms");
   if (!session) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
 
   const parsed = updateSchema.safeParse(await req.json().catch(() => null));
@@ -36,7 +36,7 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await requireRole("ADMIN");
+  const session = await requireAdminAccess("terms");
   if (!session) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
 
   const resultCount = await db.result.count({ where: { termId: params.id } });

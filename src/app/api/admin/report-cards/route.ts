@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { requireRole } from "@/lib/session";
+import { requireAdminAccess } from "@/lib/adminAccess";
 
 export async function GET(req: NextRequest) {
-  const session = await requireRole("ADMIN");
+  const session = await requireAdminAccess("reportCards");
   if (!session) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
 
   const classId = req.nextUrl.searchParams.get("classId");
@@ -71,7 +71,7 @@ const saveSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const session = await requireRole("ADMIN");
+  const session = await requireAdminAccess("reportCards");
   if (!session) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
 
   const parsed = saveSchema.safeParse(await req.json().catch(() => null));

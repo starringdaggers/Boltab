@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
+import Link from "next/link";
 import Avatar from "@/components/shared/Avatar";
 import Pagination from "@/components/shared/Pagination";
 
@@ -386,10 +387,13 @@ function StudentsRoster({
                 {pageRows.map((s) => (
                   <tr key={s.id} className="border-b border-taupe/10">
                     <td className="py-2 text-bistre">
-                      <div className="flex items-center gap-2.5">
+                      <Link
+                        href={`/admin/students/${s.id}`}
+                        className="flex items-center gap-2.5 hover:underline"
+                      >
                         <Avatar name={s.user.name} size={28} imageUrl={s.user.profilePictureUrl} />
                         {s.user.name}
-                      </div>
+                      </Link>
                     </td>
                     <td className="py-2 font-mono text-vandyke">{s.admissionNo}</td>
                     <td className="py-2 text-vandyke">{s.class.name}</td>
