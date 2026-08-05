@@ -88,51 +88,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Audiences */}
-      <section id="audiences" className="max-w-6xl mx-auto px-6 md:px-10 py-16">
-        <h2 className="font-display text-2xl md:text-3xl font-semibold mb-10 max-w-lg">
-          One record. Built around the three people who need it.
-        </h2>
-        <div className="grid md:grid-cols-3 gap-5">
-          <div className="bg-white/40 border border-taupe/30 rounded-card p-6">
-            <p className="font-mono text-xs tracking-wide text-choc uppercase mb-3">
-              For students
-            </p>
-            <p className="font-display text-xl font-semibold mb-2">
-              See it the moment it's posted
-            </p>
-            <p className="text-vandyke text-sm">
-              Every subject, every term, in one place — no more waiting on a
-              printed report card to know where you stand.
-            </p>
-          </div>
-          <div className="bg-white/40 border border-taupe/30 rounded-card p-6">
-            <p className="font-mono text-xs tracking-wide text-choc uppercase mb-3">
-              For teachers
-            </p>
-            <p className="font-display text-xl font-semibold mb-2">
-              Post a whole class in minutes
-            </p>
-            <p className="text-vandyke text-sm">
-              Enter test and exam scores for your entire class at once —
-              totals and grades calculate themselves.
-            </p>
-          </div>
-          <div className="bg-white/40 border border-taupe/30 rounded-card p-6">
-            <p className="font-mono text-xs tracking-wide text-choc uppercase mb-3">
-              For admins
-            </p>
-            <p className="font-display text-xl font-semibold mb-2">
-              Full oversight, one dashboard
-            </p>
-            <p className="text-vandyke text-sm">
-              Manage classes, subjects, and staff, and lock a term once
-              results are final.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* How it works / product mockup */}
       <section id="how-it-works" className="max-w-6xl mx-auto px-6 md:px-10 py-16 grid md:grid-cols-2 gap-12 items-center">
         <div>
