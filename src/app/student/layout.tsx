@@ -1,4 +1,7 @@
 import DashboardShell from "@/components/shared/DashboardShell";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 const NAV_ITEMS = [
   { href: "/student", label: "Overview", icon: "dashboard" as const },

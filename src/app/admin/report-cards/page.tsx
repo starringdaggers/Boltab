@@ -33,6 +33,38 @@ export default function AdminReportCardsPage() {
   const [viewLoading, setViewLoading] = useState(false);
   const [viewError, setViewError] = useState<string | null>(null);
 
+  const [globallyWithheld, setGloballyWithheld] = useState(false);
+  const [loadingGlobal, setLoadingGlobal] = useState(true);
+  const [togglingGlobal, setTogglingGlobal] = useState(false);
+
+  useEffect(() => {
+    async function loadGlobal() {
+      setLoadingGlobal(true);
+      const res = await fetch("/api/admin/report-cards/settings");
+      const data = await res.json();
+      setGloballyWithheld(!!data.reportCardsGloballyWithheld);
+      setLoadingGlobal(false);
+    }
+    loadGlobal();
+  }, []);
+
+  async function handleToggleGlobal() {
+    setTogglingGlobal(true);
+    const res = await fetch("/api/admin/report-cards/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ withheld: !globallyWithheld }),
+    });
+    setTogglingGlobal(false);
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.error);
+      return;
+    }
+    const data = await res.json();
+    setGloballyWithheld(data.reportCardsGloballyWithheld);
+  }
+
   useEffect(() => {
     async function loadOptions() {
       setLoadingOptions(true);
@@ -140,6 +172,43 @@ export default function AdminReportCardsPage() {
         individual student's report card here — useful for outstanding fees
         or other holds.
       </p>
+
+      <div
+        className={`flex items-center justify-between gap-4 flex-wrap rounded-card px-4 py-3 mb-6 border ${
+          globallyWithheld
+            ? "bg-status-fail/10 border-status-fail/30"
+            : "bg-status-pass/10 border-status-pass/30"
+        }`}
+      >
+        <div>
+          <p className="font-medium text-bistre">
+            {loadingGlobal
+              ? "Checking status…"
+              : globallyWithheld
+              ? "All report cards are currently withheld"
+              : "All report cards are visible as normal"}
+          </p>
+          <p className="text-vandyke text-sm">
+            This only affects the Report Card — students can still see their
+            Results tab either way.
+          </p>
+        </div>
+        <button
+          onClick={handleToggleGlobal}
+          disabled={loadingGlobal || togglingGlobal}
+          className={`text-sm font-medium rounded-lg px-4 py-2 transition-colors whitespace-nowrap disabled:opacity-50 ${
+            globallyWithheld
+              ? "bg-status-pass text-white hover:opacity-90"
+              : "bg-status-fail text-white hover:opacity-90"
+          }`}
+        >
+          {togglingGlobal
+            ? "Working…"
+            : globallyWithheld
+            ? "Release all report cards"
+            : "Withhold all report cards"}
+        </button>
+      </div>
 
       {loadingOptions ? (
         <p className="text-vandyke">Loading…</p>

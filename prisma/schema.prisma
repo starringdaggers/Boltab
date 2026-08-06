@@ -367,3 +367,17 @@ model AdminDelegation {
 
   @@map("admin_delegations")
 }
+
+// Singleton row (always id = "singleton") for site-wide switches that don't
+// belong to any one class/term/student. Currently just the global report
+// card withhold — deliberately separate from the per-student ReportCard
+// withhold and the per-term Term.resultsReleased gate, since this needs to
+// hide report cards specifically while leaving the raw Results tab visible,
+// which those other two gates don't distinguish between.
+model SchoolSettings {
+  id                          String  @id @default("singleton")
+  reportCardsGloballyWithheld Boolean @default(false)
+  updatedAt                   DateTime @updatedAt
+
+  @@map("school_settings")
+}

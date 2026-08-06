@@ -1,8 +1,33 @@
 import Link from "next/link";
 
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  name: "Boltab Brilliant Schools",
+  url: "https://boltab.vercel.app",
+  logo: "https://boltab.vercel.app/logo.png",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "27, Liberty Street, Olugba Ilogbo Asowo",
+    addressLocality: "Otta",
+    addressRegion: "Ogun State",
+    addressCountry: "NG",
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer support",
+    telephone: "+2349036750884",
+    contactOption: "WhatsApp",
+  },
+};
+
 export default function LandingPage() {
   return (
     <main className="bg-antique text-bistre">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       {/* Nav */}
       <header className="sticky top-0 z-20 bg-ocean-sunset">
         <div className="max-w-6xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
@@ -32,9 +57,9 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 pb-20 md:pt-24 md:pb-28 grid md:grid-cols-2 gap-12 items-center">
         <div>
-          <p className="font-mono text-xs tracking-[0.2em] text-choc uppercase mb-4">
-            Results Portal
-          </p>
+          <h1 className="font-mono text-xs tracking-[0.2em] text-choc uppercase mb-4">
+            Boltab Brilliant Schools — Results Portal
+          </h1>
           <div className="flex flex-wrap gap-3">
             <Link
               href="/login"
@@ -45,43 +70,20 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Signature element: term averages plotted as a constellation */}
+        {/* Hero photo — a real Boltab student in uniform */}
         <div className="relative">
           <div className="relative bg-ocean-sunset rounded-card aspect-[4/3] overflow-hidden">
-            <svg
-              viewBox="0 0 400 300"
-              className="w-full h-full"
-              aria-hidden="true"
-            >
-              {[
-                [30, 40], [70, 90], [340, 50], [370, 120], [50, 220],
-                [310, 220], [200, 30], [150, 260], [250, 270], [20, 150],
-                [380, 190], [110, 60],
-              ].map(([cx, cy], i) => (
-                <circle key={i} cx={cx} cy={cy} r="1.6" fill="#A8A6E8" opacity="0.6" />
-              ))}
-
-              <polyline
-                points="40,230 110,190 160,205 210,140 260,110 310,70 360,55"
-                fill="none"
-                stroke="#FFFFFF"
-                strokeWidth="1.5"
-                strokeDasharray="3 5"
-                opacity="0.7"
-              />
-              {[
-                [40, 230], [110, 190], [160, 205], [210, 140],
-                [260, 110], [310, 70], [360, 55],
-              ].map(([cx, cy], i) => (
-                <circle key={i} cx={cx} cy={cy} r="4" fill="#FFFFFF" />
-              ))}
-            </svg>
+            <img
+              src="/student-abdullahi.png"
+              alt="A Boltab Brilliant Schools student in uniform, smiling with arms crossed on campus"
+              className="w-full h-full object-cover"
+            />
             <div className="absolute bottom-5 left-6 right-6">
               <p className="font-mono text-[10px] tracking-[0.15em] text-taupe uppercase">
-                This term
+                Boltab Brilliant Schools
               </p>
               <p className="font-display text-antique text-xl font-semibold">
-                Averages, trending up.
+                Every grade, on record.
               </p>
             </div>
           </div>
@@ -215,9 +217,14 @@ export default function LandingPage() {
             .
           </p>
         </div>
-        <p className="text-vandyke text-sm">
-          © 2026 Boltab Brilliant Schools
-        </p>
+        <div className="flex flex-col items-start md:items-end gap-1">
+          <p className="text-vandyke text-sm">
+            © 2026 Boltab Brilliant Schools
+          </p>
+          <Link href="/privacy" className="text-choc text-sm hover:underline">
+            Privacy Policy
+          </Link>
+        </div>
       </footer>
     </main>
   );

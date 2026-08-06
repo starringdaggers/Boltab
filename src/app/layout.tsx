@@ -21,8 +21,11 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Boltab Brilliant Schools — Results Portal",
-  description: "Student and teacher portal for exam and test results.",
+  metadataBase: new URL("https://boltab.vercel.app"),
+  title: "Boltab Brilliant Schools — Results Portal | Otta, Ogun State",
+  description:
+    "Boltab Brilliant Schools' official results portal in Otta, Ogun State — students and parents can view term results instantly, and teachers post scores in minutes.",
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
