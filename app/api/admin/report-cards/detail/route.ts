@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireRole } from "@/lib/session";
+import { requireAdminAccess } from "@/lib/adminAccess";
 import { PSYCHOMOTOR_SKILLS, AFFECTIVE_TRAITS } from "@/lib/reportCardFields";
 
 // Admin can view a student's full report card regardless of whether the
 // term has been released or the student individually withheld — this is
 // an oversight view, not the student-facing gated one.
 export async function GET(req: NextRequest) {
-  const session = await requireRole("ADMIN");
+  const session = await requireAdminAccess("reportCards");
   if (!session) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
 
   const studentId = req.nextUrl.searchParams.get("studentId");
