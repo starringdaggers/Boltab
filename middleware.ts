@@ -14,6 +14,40 @@ const PROTECTED_API_PREFIXES = [
   "/api/student",
 ];
 
+// Admin sections a TEACHER account MAY be delegated access to. This is only
+// a coarse gate — it just lets the request past the role check. The real,
+// fine-grained "does THIS teacher actually have THIS permission" check
+// happens inside each route handler via requireAdminAccess(), since that
+// needs a database lookup and middleware runs on the Edge Runtime, which
+// can't reliably run Prisma queries (same constraint that caused the CSP
+// hydration bug earlier — Edge Runtime has real limits on what can run in it).
+//
+// Deliberately NOT included here: /admin/teachers, /admin/fees,
+// /admin/profile-pictures, /admin/delegates (and their /api equivalents) —
+// those stay strictly admin-only no matter what, so a delegate can never
+// manage other teachers, money, identity approvals, or grant themselves
+// more access.
+const DELEGABLE_ADMIN_PATHS = [
+  "/admin/classes",
+  "/admin/subjects",
+  "/admin/terms",
+  "/admin/students",
+  "/admin/report-cards",
+  "/admin/attendance",
+  "/api/admin/classes",
+  "/api/admin/subjects",
+  "/api/admin/terms",
+  "/api/admin/students",
+  "/api/admin/report-cards",
+  "/api/admin/attendance",
+];
+
+function isDelegablePath(pathname: string): boolean {
+  return DELEGABLE_ADMIN_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`)
+  );
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -36,6 +70,16 @@ export async function middleware(req: NextRequest) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // A TEACHER hitting a delegable /admin path gets a pass here — the route
+  // itself decides whether THIS teacher actually has THAT permission.
+  if (
+    (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) &&
+    session.role === "TEACHER" &&
+    isDelegablePath(pathname)
+  ) {
+    return NextResponse.next();
   }
 
   // Figure out which role-prefix this path belongs to (page or API)
