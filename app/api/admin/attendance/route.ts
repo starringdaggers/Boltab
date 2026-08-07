@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireRole } from "@/lib/session";
+import { requireAdminAccess } from "@/lib/adminAccess";
 
 export async function GET(req: NextRequest) {
-  const session = await requireRole("ADMIN");
+  const session = await requireAdminAccess("attendance");
   if (!session) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
 
   const classId = req.nextUrl.searchParams.get("classId");

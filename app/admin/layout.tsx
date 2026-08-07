@@ -1,4 +1,7 @@
 import DashboardShell from "@/components/shared/DashboardShell";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Overview", icon: "dashboard" as const },
@@ -8,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/admin/teachers", label: "Teachers", icon: "teachers" as const },
   { href: "/admin/students", label: "Students", icon: "students" as const },
   { href: "/admin/profile-pictures", label: "Profile Pictures", icon: "profilePictures" as const },
+  { href: "/admin/delegates", label: "Delegate Access", icon: "delegates" as const },
   { href: "/admin/report-cards", label: "Report Cards", icon: "reportCards" as const },
   { href: "/admin/attendance", label: "Attendance", icon: "attendance" as const },
   { href: "/admin/timetables", label: "Timetables", icon: "timetable" as const },

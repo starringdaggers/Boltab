@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireRole } from "@/lib/session";
+import { requireAdminAccess } from "@/lib/adminAccess";
 import { hashPassword } from "@/lib/hash";
 import { generateTempPassword } from "@/lib/password";
 
@@ -8,7 +8,7 @@ export async function PATCH(
   _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await requireRole("ADMIN");
+  const session = await requireAdminAccess("students");
   if (!session) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
 
   const student = await db.student.findUnique({ where: { id: params.id } });

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireRole } from "@/lib/session";
+import { requireAdminAccess } from "@/lib/adminAccess";
 import { hashPassword } from "@/lib/hash";
 import { generateTempPassword } from "@/lib/password";
 
@@ -19,7 +19,7 @@ function parseCsv(text: string): string[][] {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await requireRole("ADMIN");
+  const session = await requireAdminAccess("students");
   if (!session) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
 
   const body = await req.json().catch(() => null);
