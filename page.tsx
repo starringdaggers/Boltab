@@ -30,7 +30,7 @@ export default function LandingPage() {
       />
 
       {/* Nav */}
-      <header className="sticky top-0 z-20 bg-gradient-to-r from-bistre to-choc">
+      <header className="sticky top-0 z-20 bg-gradient-to-r from-[#2F2E71] to-[#6967FB]">
         <div className="max-w-6xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="Boltab Brilliant Schools crest" className="h-9 w-auto" />
@@ -38,7 +38,7 @@ export default function LandingPage() {
               Boltab Brilliant Schools
             </span>
           </div>
-          <nav className="hidden md:flex items-center gap-8 text-sm text-taupe">
+          <nav className="hidden md:flex items-center gap-8 text-sm text-[#A8A6E8]">
             <a href="#how-it-works" className="hover:text-white transition-colors">
               How it works
             </a>
@@ -48,7 +48,7 @@ export default function LandingPage() {
           </nav>
           <Link
             href="/login"
-            className="bg-white text-bistre text-sm font-semibold rounded-full px-5 py-2 hover:bg-antique-dim transition-colors"
+            className="bg-white text-[#2F2E71] text-sm font-semibold rounded-full px-5 py-2 hover:bg-[#F1F0FF] transition-colors"
           >
             Sign in
           </Link>
