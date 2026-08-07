@@ -74,6 +74,3 @@ export default function LandingPage() {
           <p className="text-slate-500 text-lg mb-8 max-w-md">
             Check term results, access report cards, and track academic
             progress.
-</main>
-  );
-}
