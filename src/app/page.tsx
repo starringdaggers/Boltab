@@ -62,8 +62,9 @@ export default function LandingPage() {
             Results Portal
           </p>
 
-          <h1 className="text-3xl md:text-4xl font-black leading-tight mb-5 tracking-tight">
-            Welcome to Boltab
+          <h1 className="text-xl md:text-2xl font-black leading-snug mb-5 tracking-tight">
+            Welcome to Boltab Brilliant School Student &amp; Parent&apos;s
+            Portal
           </h1>
 
           <p className="text-slate-500 text-lg mb-8 max-w-md">
@@ -184,11 +185,13 @@ export default function LandingPage() {
       {/* Leadership */}
       <section className="max-w-6xl mx-auto px-6 md:px-10 pb-20">
         <div className="bg-indigo-950 rounded-[2.5rem] p-8 md:p-10 grid md:grid-cols-[auto_1fr] gap-8 items-center">
-          <img
-            src="/headmistress.png"
-            alt="Oloyede Adetella Lateefat, Headmistress of Boltab Brilliant Schools"
-            className="w-40 md:w-48 h-auto mx-auto md:mx-0 rounded-2xl"
-          />
+          <div className="w-40 md:w-48 mx-auto md:mx-0 bg-white rounded-2xl p-2">
+            <img
+              src="/headmistress.png"
+              alt="Oloyede Adetella Lateefat, Headmistress of Boltab Brilliant Schools"
+              className="w-full h-auto rounded-xl"
+            />
+          </div>
           <div>
             <p className="text-indigo-300 text-xs font-semibold tracking-wide uppercase mb-3">
               Leadership
@@ -235,29 +238,29 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer id="contact" className="border-t border-slate-100">
+      <footer id="contact" className="bg-gradient-to-r from-bistre to-choc">
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="Boltab Brilliant Schools crest" className="h-8 w-auto" />
             <div>
-              <p className="font-semibold text-sm">Boltab Brilliant Schools</p>
-              <p className="text-slate-400 text-xs">Results Portal</p>
+              <p className="font-semibold text-sm text-white">Boltab Brilliant Schools</p>
+              <p className="text-taupe text-xs">Results Portal</p>
             </div>
           </div>
-          <p className="text-slate-500 text-sm">
+          <p className="text-taupe text-sm">
             Need help? WhatsApp:{" "}
             <a
               href="https://wa.me/2349036750884"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-indigo-600 hover:underline"
+              className="text-white hover:underline"
             >
               0903 675 0884
             </a>
           </p>
-          <p className="text-slate-400 text-sm">
+          <p className="text-taupe text-sm">
             © 2026 Boltab Brilliant Schools ·{" "}
-            <Link href="/privacy" className="hover:underline">
+            <Link href="/privacy" className="text-white hover:underline">
               Privacy Policy
             </Link>
           </p>
