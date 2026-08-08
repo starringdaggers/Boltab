@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Fraunces, Work_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -21,15 +21,8 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://boltab.vercel.app"),
-  title: "Boltab Brilliant Schools — Results Portal | Otta, Ogun State",
-  description:
-    "Boltab Brilliant Schools' official results portal in Otta, Ogun State — students and parents can view term results instantly, and teachers post scores in minutes.",
-  robots: { index: true, follow: true },
-};
-
-export const viewport: Viewport = {
-  themeColor: "#6967FB",
+  title: "Boltab Brilliant Schools — Results Portal",
+  description: "Student and teacher portal for exam and test results.",
 };
 
 export default function RootLayout({

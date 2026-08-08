@@ -1,54 +1,28 @@
 import Link from "next/link";
 
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "EducationalOrganization",
-  name: "Boltab Brilliant Schools",
-  url: "https://boltab.vercel.app",
-  logo: "https://boltab.vercel.app/logo.png",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "27, Liberty Street, Olugba Ilogbo Asowo",
-    addressLocality: "Otta",
-    addressRegion: "Ogun State",
-    addressCountry: "NG",
-  },
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "customer support",
-    telephone: "+2349036750884",
-    contactOption: "WhatsApp",
-  },
-};
-
 export default function LandingPage() {
   return (
-    <main className="bg-white text-slate-900">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-
+    <main className="bg-antique text-bistre">
       {/* Nav */}
-      <header className="sticky top-0 z-20 bg-gradient-to-r from-bistre to-choc">
+      <header className="sticky top-0 z-20 bg-ocean-sunset">
         <div className="max-w-6xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Boltab Brilliant Schools crest" className="h-9 w-auto" />
-            <span className="text-sm font-bold tracking-wide text-white uppercase">
+            <img src="/logo.png" alt="Boltab Brilliant Schools crest" className="h-10 w-auto" />
+            <span className="font-mono text-xs tracking-[0.2em] text-antique uppercase">
               Boltab Brilliant Schools
             </span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm text-taupe">
-            <a href="#about" className="hover:text-white transition-colors">
+            <a href="#how-it-works" className="hover:text-antique transition-colors">
               How it works
             </a>
-            <a href="#contact" className="hover:text-white transition-colors">
+            <a href="#contact" className="hover:text-antique transition-colors">
               Contact
             </a>
           </nav>
           <Link
             href="/login"
-            className="bg-white text-bistre text-sm font-semibold rounded-full px-5 py-2 hover:bg-antique-dim transition-colors"
+            className="bg-choc hover:bg-choc-dark text-antique text-sm font-medium rounded-lg px-4 py-2 transition-colors"
           >
             Sign in
           </Link>
@@ -56,215 +30,194 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 pb-20 grid md:grid-cols-2 gap-12 items-center">
+      <section className="max-w-6xl mx-auto px-6 md:px-10 pt-16 pb-20 md:pt-24 md:pb-28 grid md:grid-cols-2 gap-12 items-center">
         <div>
-          <p className="text-choc text-xs font-semibold tracking-widest uppercase mb-5">
+          <p className="font-mono text-xs tracking-[0.2em] text-choc uppercase mb-4">
             Results Portal
           </p>
-
-          <h1 className="text-xl md:text-2xl font-black leading-snug mb-5 tracking-tight">
-            Welcome to Boltab Brilliant School Student &amp; Parent&apos;s
-            Portal
-          </h1>
-
-          <p className="text-slate-500 text-lg mb-8 max-w-md">
-            Check term results, access report cards, and track academic
-            progress.
-          </p>
-
-          <Link
-            href="/login"
-            className="bg-choc hover:bg-choc-dark text-white font-semibold rounded-xl px-6 py-3.5 transition-colors inline-flex items-center gap-2"
-          >
-            Sign in
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/login"
+              className="bg-choc hover:bg-choc-dark text-antique font-medium rounded-lg px-6 py-3 transition-colors"
+            >
+              Sign in
+            </Link>
+          </div>
         </div>
 
-        {/* Hero graphic — constellation card */}
-        <div className="relative flex justify-center md:justify-end">
-          <div className="relative w-full max-w-md aspect-[4/3] bg-ocean-sunset rounded-[2rem] overflow-hidden">
+        {/* Signature element: term averages plotted as a constellation */}
+        <div className="relative">
+          <div className="relative bg-ocean-sunset rounded-card aspect-[4/3] overflow-hidden">
             <svg
-              viewBox="0 0 400 320"
-              className="absolute inset-0 w-full h-full"
-              fill="none"
+              viewBox="0 0 400 300"
+              className="w-full h-full"
+              aria-hidden="true"
             >
-              {/* scattered background stars */}
               {[
-                [30, 40], [140, 25], [260, 55], [370, 60], [90, 90],
-                [300, 210], [340, 250], [60, 200], [250, 290], [190, 270],
+                [30, 40], [70, 90], [340, 50], [370, 120], [50, 220],
+                [310, 220], [200, 30], [150, 260], [250, 270], [20, 150],
+                [380, 190], [110, 60],
               ].map(([cx, cy], i) => (
-                <circle key={i} cx={cx} cy={cy} r={2} fill="#FFFFFF" opacity={0.5} />
+                <circle key={i} cx={cx} cy={cy} r="1.6" fill="#A8A6E8" opacity="0.6" />
               ))}
 
-              {/* ascending connected constellation */}
               <polyline
-                points="30,255 75,290 130,235 155,260 195,190 235,150 275,110 355,70"
+                points="40,230 110,190 160,205 210,140 260,110 310,70 360,55"
+                fill="none"
                 stroke="#FFFFFF"
-                strokeOpacity={0.5}
-                strokeWidth={1.5}
+                strokeWidth="1.5"
                 strokeDasharray="3 5"
+                opacity="0.7"
               />
               {[
-                [30, 255], [75, 290], [130, 235], [155, 260],
-                [195, 190], [235, 150], [275, 110], [355, 70],
+                [40, 230], [110, 190], [160, 205], [210, 140],
+                [260, 110], [310, 70], [360, 55],
               ].map(([cx, cy], i) => (
-                <circle key={i} cx={cx} cy={cy} r={5} fill="#FFFFFF" />
+                <circle key={i} cx={cx} cy={cy} r="4" fill="#FFFFFF" />
               ))}
             </svg>
+            <div className="absolute bottom-5 left-6 right-6">
+              <p className="font-mono text-[10px] tracking-[0.15em] text-taupe uppercase">
+                This term
+              </p>
+              <p className="font-display text-antique text-xl font-semibold">
+                Averages, trending up.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* About the school */}
-      <section id="about" className="max-w-6xl mx-auto px-6 md:px-10 py-20 grid md:grid-cols-2 gap-14 items-start">
+      {/* How it works / product mockup */}
+      <section id="how-it-works" className="max-w-6xl mx-auto px-6 md:px-10 py-16 grid md:grid-cols-2 gap-12 items-center">
         <div>
-          <p className="text-indigo-600 text-xs font-semibold tracking-wide uppercase mb-3">
-            About the school
+          <p className="font-mono text-xs tracking-[0.2em] text-choc uppercase mb-4">
+            How it works
           </p>
-          <p className="text-slate-500 mb-4">
+          <h2 className="font-display text-2xl md:text-3xl font-semibold mb-5">
+            About Boltab Brilliant Schools
+          </h2>
+          <p className="text-vandyke mb-4">
             We built this portal to close the gap between a test being
             marked and a family knowing the result. A teacher enters scores
-            once — the student sees it instantly, saved as the permanent
-            record for that term.
+            once — the student sees it instantly, and it's saved as the
+            permanent record for that term.
           </p>
-          <p className="text-slate-500">
+          <p className="text-vandyke">
             No lost report cards, no manual re-entry, no guessing at an
             average. Just one record, always current.
           </p>
         </div>
 
-        {/* Term results preview */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-semibold tracking-wide uppercase text-slate-400">
-              Term Results — Preview
-            </p>
-            <span className="bg-status-pass/10 text-status-pass text-[11px] font-semibold rounded-full px-2.5 py-1">
-              Live
-            </span>
-          </div>
-          <div className="space-y-1">
+        <div className="bg-white/50 border border-taupe/30 rounded-card p-5">
+          <p className="font-mono text-[10px] tracking-wide text-vandyke uppercase mb-3">
+            Term Results — Preview
+          </p>
+          <div className="space-y-2">
             {[
-              { subject: "Mathematics", score: 82, grade: "A" },
-              { subject: "English Language", score: 71, grade: "A" },
-              { subject: "Basic Science", score: 64, grade: "B" },
-              { subject: "Social Studies", score: 47, grade: "D" },
-            ].map((r) => (
+              { subject: "Mathematics", total: 82, grade: "A" },
+              { subject: "English Language", total: 71, grade: "A" },
+              { subject: "Basic Science", total: 64, grade: "B" },
+              { subject: "Social Studies", total: 47, grade: "D" },
+            ].map((row) => (
               <div
-                key={r.subject}
-                className="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0"
+                key={row.subject}
+                className="flex items-center justify-between bg-antique/60 rounded-lg px-4 py-2.5"
               >
-                <span className="text-sm text-slate-700">{r.subject}</span>
+                <span className="text-sm text-bistre">{row.subject}</span>
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-sm text-slate-900">{r.score}</span>
+                  <span className="font-mono text-sm text-vandyke">{row.total}</span>
                   <span
-                    className={`text-xs font-semibold rounded-full w-6 h-6 flex items-center justify-center ${
-                      r.grade === "D"
-                        ? "bg-amber-50 text-amber-600"
-                        : "bg-indigo-50 text-indigo-600"
+                    className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      row.grade === "D"
+                        ? "bg-status-warn/10 text-status-warn"
+                        : "bg-status-pass/10 text-status-pass"
                     }`}
                   >
-                    {r.grade}
+                    {row.grade}
                   </span>
                 </div>
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between mt-4 pt-2">
-            <span className="text-sm text-slate-500">Class average</span>
-            <div className="flex items-center gap-2">
-              <div className="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                <div className="h-full w-2/3 rounded-full bg-indigo-500" />
-              </div>
-              <span className="text-sm font-semibold text-slate-900">66%</span>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* Leadership */}
-      <section className="max-w-6xl mx-auto px-6 md:px-10 pb-20">
-        <div className="bg-indigo-950 rounded-[2.5rem] p-8 md:p-10 grid md:grid-cols-[auto_1fr] gap-8 items-center">
-          <div className="w-40 md:w-48 mx-auto md:mx-0 bg-white rounded-2xl p-2">
+      <section className="max-w-6xl mx-auto px-6 md:px-10 py-16 grid md:grid-cols-2 gap-12 items-center">
+        <div className="order-2 md:order-1">
+          <p className="font-mono text-xs tracking-[0.2em] text-choc uppercase mb-4">
+            Leadership
+          </p>
+          <h2 className="font-display text-2xl md:text-3xl font-semibold mb-2">
+            Oloyede Adetella Lateefat
+          </h2>
+          <p className="text-choc font-medium mb-5">
+            Headmistress, Boltab Brilliant Schools
+          </p>
+          <p className="text-vandyke mb-6 max-w-md">
+            "Every child's progress deserves to be seen clearly and shared
+            quickly. This portal is part of how we keep that promise to our
+            students and their families."
+          </p>
+          <a
+            href="https://wa.me/2349036750884"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-choc hover:bg-choc-dark text-antique font-medium rounded-lg px-5 py-2.5 transition-colors"
+          >
+            Chat on WhatsApp
+          </a>
+        </div>
+        <div className="order-1 md:order-2 flex justify-center">
+          <div className="bg-white/40 border border-taupe/30 rounded-card p-6">
             <img
               src="/headmistress.png"
               alt="Oloyede Adetella Lateefat, Headmistress of Boltab Brilliant Schools"
-              className="w-full h-auto rounded-xl"
+              className="w-56 md:w-64 h-auto rounded-card"
             />
-          </div>
-          <div>
-            <p className="text-indigo-300 text-xs font-semibold tracking-wide uppercase mb-3">
-              Leadership
-            </p>
-            <blockquote className="text-white text-lg md:text-xl font-medium leading-snug border-l-2 border-indigo-500 pl-4 mb-4">
-              &ldquo;Every child&apos;s progress deserves to be seen clearly
-              and shared quickly. This portal is part of how we keep that
-              promise to our students and their families.&rdquo;
-            </blockquote>
-            <p className="text-white font-semibold">Oloyede Adetella Lateefat</p>
-            <p className="text-indigo-300 text-sm mb-5">
-              Headmistress, Boltab Brilliant Schools
-            </p>
-            <a
-              href="https://wa.me/2349036750884"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-full px-5 py-2.5 transition-colors"
-            >
-              Chat on WhatsApp
-            </a>
           </div>
         </div>
       </section>
 
       {/* CTA banner */}
-      <section className="max-w-6xl mx-auto px-6 md:px-10 pb-20">
-        <div className="bg-gradient-to-br from-indigo-700 to-indigo-500 rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div>
-            <p className="text-indigo-200 text-xs font-semibold tracking-wide uppercase mb-3">
-              Get started
-            </p>
-            <h2 className="text-3xl font-black text-white mb-2 leading-tight">
-              Ready to check this term&apos;s results?
-            </h2>
-          </div>
+      <section className="bg-ocean-sunset">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 text-center">
+          <h2 className="font-display text-2xl md:text-3xl text-antique font-semibold mb-4">
+            Ready to check this term's results?
+          </h2>
           <Link
             href="/login"
-            className="bg-white hover:bg-indigo-50 text-indigo-700 font-semibold rounded-full px-6 py-3.5 whitespace-nowrap transition-colors inline-flex items-center gap-2"
+            className="inline-block bg-choc hover:bg-choc-dark text-antique font-medium rounded-lg px-6 py-3 transition-colors"
           >
-            Sign in to portal <span aria-hidden="true">→</span>
+            Sign in
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer id="contact" className="bg-gradient-to-r from-bistre to-choc">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Boltab Brilliant Schools crest" className="h-8 w-auto" />
-            <div>
-              <p className="font-semibold text-sm text-white">Boltab Brilliant Schools</p>
-              <p className="text-taupe text-xs">Results Portal</p>
-            </div>
-          </div>
-          <p className="text-taupe text-sm">
-            Need help? WhatsApp:{" "}
+      <footer id="contact" className="max-w-6xl mx-auto px-6 md:px-10 py-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <p className="font-display text-bistre font-semibold">
+            Boltab Brilliant Schools
+          </p>
+          <p className="text-vandyke text-sm mt-1">
+            Trouble accessing your account? Contact the school office, or
+            reach us on WhatsApp at{" "}
             <a
               href="https://wa.me/2349036750884"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white hover:underline"
+              className="text-choc hover:underline"
             >
               0903 675 0884
             </a>
-          </p>
-          <p className="text-taupe text-sm">
-            © 2026 Boltab Brilliant Schools ·{" "}
-            <Link href="/privacy" className="text-white hover:underline">
-              Privacy Policy
-            </Link>
+            .
           </p>
         </div>
+        <p className="text-vandyke text-sm">
+          © 2026 Boltab Brilliant Schools
+        </p>
       </footer>
     </main>
   );

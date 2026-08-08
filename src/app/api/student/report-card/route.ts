@@ -26,17 +26,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Term not found." }, { status: 404 });
   }
 
-  // Global switch — admin can withhold every report card at once (e.g.
-  // while finalizing a term) without touching the Results tab, which stays
-  // visible regardless (checked separately, doesn't share this gate).
-  const settings = await db.schoolSettings.findUnique({ where: { id: "singleton" } });
-  if (settings?.reportCardsGloballyWithheld) {
-    return NextResponse.json(
-      { error: "Report cards are temporarily withheld by the school administration. Please check back later." },
-      { status: 403 }
-    );
-  }
-
   const access = await checkResultsAccess(student.id, term);
   if (!access.allowed) {
     return NextResponse.json({ error: access.reason }, { status: 403 });

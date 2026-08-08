@@ -1,9 +1,6 @@
 import DashboardShell, { NavItem } from "@/components/shared/DashboardShell";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 const BASE_NAV_ITEMS: NavItem[] = [
   { href: "/teacher", label: "Overview", icon: "dashboard" },
